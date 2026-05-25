@@ -2,138 +2,252 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Niche Graph Visualizer</title>
-    <!-- Подключаем Vis.js -->
-    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
-    <link href="https://unpkg.com/vis-network/styles/vis-network.min.css" rel="stylesheet" type="text/css" />
-    <!-- Подключаем Telegram WebApp SDK -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Niche Spider: Business Map</title>
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <link href="https://unpkg.com/vis-network/styles/vis-network.min.css" rel="stylesheet" />
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
     <style>
+        :root {
+            --bg-color: var(--tg-theme-bg-color, #ffffff);
+            --text-color: var(--tg-theme-text-color, #000000);
+            --hint-color: var(--tg-theme-hint-color, #999999);
+            --button-color: var(--tg-theme-button-color, #3390ec);
+            --button-text-color: var(--tg-theme-button-text-color, #ffffff);
+            --secondary-bg: var(--tg-theme-secondary-bg-color, #f0f0f0);
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--tg-theme-bg-color, #ffffff);
-            color: var(--tg-theme-text-color, #000000);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0; padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex; flex-direction: column; height: 100vh; overflow: hidden;
         }
-        #mynetwork {
-            width: 100%;
-            height: 100vh; /* На весь экран */
-            border: 1px solid lightgray;
+
+        /* Верхняя часть: Граф */
+        #graph-container {
+            flex: 1; position: relative; border-bottom: 1px solid #ddd;
         }
-        #loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--tg-theme-hint-color, #999);
+        #mynetwork { width: 100%; height: 100%; }
+
+        /* Карточка деталей (всплывающая) */
+        #details-panel {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px; border-top-left-radius: 16px; border-top-right-radius: 16px;
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+            transform: translateY(100%); transition: transform 0.3s ease;
+            max-height: 40%; overflow-y: auto; z-index: 10;
+        }
+        #details-panel.active { transform: translateY(0); }
+        .detail-title { font-weight: bold; font-size: 18px; margin-bottom: 8px; color: var(--button-color); }
+        .detail-item { margin-bottom: 5px; font-size: 14px; }
+
+        /* Нижняя часть: Чат и ввод */
+        #chat-interface {
+            height: 35%; display: flex; flex-direction: column;
+            background-color: var(--secondary-bg);
+        }
+        
+        #chat-history {
+            flex: 1; overflow-y: auto; padding: 10px;
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        
+        .message {
+            max-width: 80%; padding: 8px 12px; border-radius: 12px; font-size: 14px; line-height: 1.4;
+        }
+        .msg-user {
+            align-self: flex-end; background-color: var(--button-color); color: var(--button-text-color);
+            border-bottom-right-radius: 2px;
+        }
+        .msg-bot {
+            align-self: flex-start; background-color: #fff; color: #000;
+            border-bottom-left-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        #input-area {
+            padding: 10px; display: flex; gap: 10px;
+            background-color: var(--bg-color); border-top: 1px solid #eee;
+        }
+        
+        input {
+            flex: 1; padding: 10px; border-radius: 20px; border: 1px solid #ccc;
+            background: var(--secondary-bg); color: var(--text-color); outline: none;
+        }
+        
+        button {
+            padding: 0 20px; border-radius: 20px; border: none;
+            background-color: var(--button-color); color: var(--button-text-color);
+            font-weight: bold; cursor: pointer;
+        }
+
+        #loading-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.7); display: flex; justify-content: center; align-items: center;
+            z-index: 20; display: none;
         }
     </style>
 </head>
 <body>
 
-<div id="loading">Загрузка графа...</div>
-<div id="mynetwork"></div>
+    <!-- Область графа -->
+    <div id="graph-container">
+        <div id="mynetwork"></div>
+        <div id="loading-overlay">🕷️ Анализирую нишу...</div>
+        
+        <!-- Панель деталей -->
+        <div id="details-panel">
+            <div class="detail-title" id="detail-title">Название узла</div>
+            <div id="detail-content"></div>
+            <button onclick="closeDetails()" style="margin-top:10px; width:100%; background:#eee; color:#333;">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Область чата -->
+    <div id="chat-interface">
+        <div id="chat-history">
+            <div class="message msg-bot">Привет! Я твой AI-ассистент по запуску бизнеса. Напиши нишу (например, "Кофейня"), и я построю карту запуска.</div>
+        </div>
+        <div id="input-area">
+            <input type="text" id="userInput" placeholder="Например: Магазин кроссовок...">
+            <button onclick="sendMessage()">➤</button>
+        </div>
+    </div>
 
 <script type="text/javascript">
-    // Инициализация Telegram WebApp
     const tg = window.Telegram.WebApp;
-    tg.expand(); // Раскрыть на весь экран
+    tg.expand();
 
-    // Получаем параметр query из URL (например, index.html?query=Кофейня)
-    const urlParams = new URLSearchParams(window.location.search);
-    const query = urlParams.get('query') || 'Кофейня'; // Дефолтное значение
+    // ВАЖНО: Вставь сюда свою ссылку Ngrok
+// ВАЖНО: Ссылка должна быть HTTPS и содержать /analyze в конце
+const API_URL = 'https://basically-unhappily-subtitle.ngrok-free.de/analyze';
 
-    const container = document.getElementById('mynetwork');
-    const loading = document.getElementById('loading');
+    let network = null;
+    const nodes = new vis.DataSet([]);
+    const edges = new vis.DataSet([]);
 
-    // Настройки визуализации Vis.js
     const options = {
-        nodes: {
-            shape: 'dot',
-            size: 20,
-            font: {
-                size: 14,
-                color: '#000000'
-            },
-            borderWidth: 2,
-            shadow: true
-        },
-        edges: {
-            width: 2,
-            shadow: true,
-            smooth: {
-                type: 'cubicBezier',
-                forceDirection: 'horizontal',
-                roundness: 0.4
-            },
-            arrows: {
-                to: { enabled: true, scaleFactor: 1, type: 'arrow' }
-            }
-        },
+        nodes: { shape: 'dot', size: 20, font: { size: 14, color: '#000' }, shadow: true, borderWidth: 2 },
+        edges: { width: 2, smooth: { type: 'cubicBezier' }, arrows: 'to' },
         groups: {
             root: { color: { background: '#FF5733', border: '#C70039' }, size: 30 },
             product: { color: { background: '#33FF57', border: '#00C700' } },
-            competitor: { color: { background: '#3357FF', border: '#0000C7' } }
+            supplier: { color: { background: '#FFD700', border: '#DAA520' }, shape: 'square' },
+            warehouse: { color: { background: '#87CEEB', border: '#4682B4' }, shape: 'database' },
+            competitor: { color: { background: '#FF69B4', border: '#C71585' }, shape: 'triangle' }
         },
-        physics: {
-            stabilization: false,
-            barnesHut: {
-                gravitationalConstant: -2000,
-                springLength: 150,
-                springConstant: 0.04,
-                damping: 0.09
-            }
-        }
+        physics: { stabilization: false, barnesHut: { gravitationalConstant: -2000, springLength: 150 } }
     };
 
-    // Функция загрузки данных из API
-        // Функция загрузки данных из API
-        async function loadGraphData() {
-        try {
-            // ВАЖНО: Вставь сюда СВОЮ ссылку из терминала Ngrok (та, что начинается на https://)
-            // Пример: 'https://abcd-1234.ngrok-free.app/analyze'
-            const apiUrl = 'https://basically-unhappily-subtitle.ngrok-free.de'; 
-            
-            console.log("Запрос к API:", apiUrl);
+    // Инициализация графа
+    const container = document.getElementById('mynetwork');
+    network = new vis.Network(container, { nodes: nodes, edges: edges }, options);
 
-            const response = await fetch(apiUrl, {
+    // Обработка клика по узлу
+    network.on("click", function (params) {
+        if (params.nodes.length > 0) {
+            const nodeId = params.nodes[0];
+            const nodeData = nodes.get(nodeId);
+            showDetails(nodeData);
+        } else {
+            closeDetails();
+        }
+    });
+
+    function showDetails(node) {
+        const panel = document.getElementById('details-panel');
+        const title = document.getElementById('detail-title');
+        const content = document.getElementById('detail-content');
+        
+        title.innerText = node.label;
+        
+        // Формируем контент в зависимости от группы
+        let html = '';
+        if (node.group === 'root') {
+            html = `<div class="detail-item"><b>Ниша:</b> ${node.label}</div>
+                    <div class="detail-item"><b>Статус:</b> Анализ завершен</div>`;
+        } else if (node.group === 'product') {
+            html = `<div class="detail-item"><b>Тип:</b> Товар</div>
+                    <div class="detail-item"><b>Маржинальность:</b> ~25-30%</div>
+                    <div class="detail-item"><b>Спрос:</b> Высокий</div>`;
+        } else if (node.group === 'supplier') {
+            html = `<div class="detail-item"><b>Тип:</b> Поставщик</div>
+                    <div class="detail-item"><b>Локация:</b> Китай / РФ</div>
+                    <div class="detail-item"><b>Условия:</b> Опт от 10 шт.</div>`;
+        } else if (node.group === 'warehouse') {
+            html = `<div class="detail-item"><b>Тип:</b> Фульфилмент</div>
+                    <div class="detail-item"><b>Цена хранения:</b> ~15 руб/сутки</div>
+                    <div class="detail-item"><b>Упаковка:</b> Включена</div>`;
+        } else {
+            html = `<div class="detail-item"><b>Информация:</b> Данные загружены из API</div>`;
+        }
+        
+        content.innerHTML = html;
+        panel.classList.add('active');
+    }
+
+    function closeDetails() {
+        document.getElementById('details-panel').classList.remove('active');
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('userInput');
+        const query = input.value.trim();
+        if (!query) return;
+
+        // Добавляем сообщение пользователя
+        addMessage(query, 'user');
+        input.value = '';
+
+        // Показываем лоадер
+        document.getElementById('loading-overlay').style.display = 'flex';
+
+        try {
+            const response = await fetch(API_URL, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ query: query })
             });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
             const data = await response.json();
             
-            // Преобразуем данные в формат Vis.js DataSet
-            const nodes = new vis.DataSet(data.graph_nodes);
-            const edges = new vis.DataSet(data.graph_edges);
+            // Очищаем старый граф
+            nodes.clear(); edges.clear();
 
-            // Рисуем граф
-            const networkData = { nodes: nodes, edges: edges };
-            const network = new vis.Network(container, networkData, options);
-            
-            // Скрываем лоадер
-            loading.style.display = 'none';
-            console.log("Граф успешно загружен!");
+            // Добавляем новые данные
+            if (data.graph_nodes && data.graph_edges) {
+                nodes.add(data.graph_nodes);
+                edges.add(data.graph_edges);
+                
+                // Добавляем ответ бота
+                addMessage(`Я проанализировал нишу "${query}". Вот карта запуска: товары, поставщики и склады. Нажми на узел, чтобы увидеть детали.`, 'bot');
+            }
 
-        } catch (error) {
-            console.error('Ошибка загрузки графа:', error);
-            loading.innerText = 'Ошибка соединения с API. Проверьте консоль (F12).';
-            loading.style.color = 'red';
+        } catch (e) {
+            console.error(e);
+            addMessage("Ошибка соединения с сервером. Проверьте подключение.", 'bot');
+        } finally {
+            document.getElementById('loading-overlay').style.display = 'none';
         }
     }
 
+    function addMessage(text, sender) {
+        const history = document.getElementById('chat-history');
+        const div = document.createElement('div');
+        div.className = `message msg-${sender}`;
+        div.innerText = text;
+        history.appendChild(div);
+        history.scrollTop = history.scrollHeight;
+    }
+
+    // Загрузка по Enter
+    document.getElementById('userInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') sendMessage();
+    });
 
 </script>
 </body>
