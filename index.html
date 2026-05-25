@@ -92,11 +92,15 @@
     };
 
     // Функция загрузки данных из API
-    async function loadGraphData() {
+        // Функция загрузки данных из API
+        async function loadGraphData() {
         try {
-            https://basically-unhappily-subtitle.ngrok-free.de
-            const apiUrl = 'http://localhost:8000/analyze'; 
+            // ВАЖНО: Вставь сюда СВОЮ ссылку из терминала Ngrok (та, что начинается на https://)
+            // Пример: 'https://abcd-1234.ngrok-free.app/analyze'
+            const apiUrl = 'https://basically-unhappily-subtitle.ngrok-free.de'; 
             
+            console.log("Запрос к API:", apiUrl);
+
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: {
@@ -121,16 +125,15 @@
             
             // Скрываем лоадер
             loading.style.display = 'none';
+            console.log("Граф успешно загружен!");
 
         } catch (error) {
             console.error('Ошибка загрузки графа:', error);
-            loading.innerText = 'Ошибка загрузки. Проверьте консоль.';
+            loading.innerText = 'Ошибка соединения с API. Проверьте консоль (F12).';
             loading.style.color = 'red';
         }
     }
 
-    // Запускаем загрузку
-    loadGraphData();
 
 </script>
 </body>
