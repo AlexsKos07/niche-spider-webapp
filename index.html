@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Niche Graph Visualizer</title>
+    <!-- Подключаем Vis.js -->
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <link href="https://unpkg.com/vis-network/styles/vis-network.min.css" rel="stylesheet" type="text/css" />
+    <!-- Подключаем Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+        }
+        #mynetwork {
+            width: 100%;
+            height: 100vh; /* На весь экран */
+            border: 1px solid lightgray;
+        }
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--tg-theme-hint-color, #999);
+        }
+    </style>
+</head>
+<body>
+
+<div id="loading">Загрузка графа...</div>
+<div id="mynetwork"></div>
+
+<script type="text/javascript">
+    // Инициализация Telegram WebApp
+    const tg = window.Telegram.WebApp;
+    tg.expand(); // Раскрыть на весь экран
+
+    // Получаем параметр query из URL (например, index.html?query=Кофейня)
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get('query') || 'Кофейня'; // Дефолтное значение
+
+    const container = document.getElementById('mynetwork');
+    const loading = document.getElementById('loading');
+
+    // Настройки визуализации Vis.js
+    const options = {
+        nodes: {
+            shape: 'dot',
+            size: 20,
+            font: {
+                size: 14,
+                color: '#000000'
+            },
+            borderWidth: 2,
+            shadow: true
+        },
+        edges: {
+            width: 2,
+            shadow: true,
+            smooth: {
+                type: 'cubicBezier',
+                forceDirection: 'horizontal',
+                roundness: 0.4
+            },
+            arrows: {
+                to: { enabled: true, scaleFactor: 1, type: 'arrow' }
+            }
+        },
+        groups: {
+            root: { color: { background: '#FF5733', border: '#C70039' }, size: 30 },
+            product: { color: { background: '#33FF57', border: '#00C700' } },
+            competitor: { color: { background: '#3357FF', border: '#0000C7' } }
+        },
+        physics: {
+            stabilization: false,
+            barnesHut: {
+                gravitationalConstant: -2000,
+                springLength: 150,
+                springConstant: 0.04,
+                damping: 0.09
+            }
+        }
+    };
+
+    // Функция загрузки данных из API
+    async function loadGraphData() {
+        try {
+            // ВАЖНО: Замени localhost на реальный адрес при деплое!
+            // Для локального теста на компьютере это сработает, если открыть файл в браузере.
+            // В Telegram Mini App нужен HTTPS домен (см. Шаг 3).
+            const apiUrl = 'http://localhost:8000/analyze'; 
+            
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ query: query })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            // Преобразуем данные в формат Vis.js DataSet
+            const nodes = new vis.DataSet(data.graph_nodes);
+            const edges = new vis.DataSet(data.graph_edges);
+
+            // Рисуем граф
+            const networkData = { nodes: nodes, edges: edges };
+            const network = new vis.Network(container, networkData, options);
+            
+            // Скрываем лоадер
+            loading.style.display = 'none';
+
+        } catch (error) {
+            console.error('Ошибка загрузки графа:', error);
+            loading.innerText = 'Ошибка загрузки. Проверьте консоль.';
+            loading.style.color = 'red';
+        }
+    }
+
+    // Запускаем загрузку
+    loadGraphData();
+
+</script>
+</body>
+</html>
+
