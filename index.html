@@ -125,7 +125,7 @@
     // ВАЖНО: Вставь сюда свою ссылку Ngrok
 // ВАЖНО: Ссылка должна быть HTTPS и содержать /analyze в конце
 const API_URL = 'https://basically-unhappily-subtitle.ngrok-free.de/analyze';
-
+    
     let network = null;
     const nodes = new vis.DataSet([]);
     const edges = new vis.DataSet([]);
@@ -228,13 +228,16 @@ const API_URL = 'https://basically-unhappily-subtitle.ngrok-free.de/analyze';
             }
 
         } catch (e) {
-            console.error(e);
-            addMessage("Ошибка соединения с сервером. Проверьте подключение.", 'bot');
-        } finally {
-            document.getElementById('loading-overlay').style.display = 'none';
+            console.error("Полная ошибка:", e); // Это покажет детали в консоли разработчика
+            loading.style.display = 'none';
+            
+            // Показываем пользователю более понятную ошибку
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'message msg-bot';
+            errorDiv.innerText = `❌ Ошибка сети: ${e.message}. Проверьте, запущен ли Ngrok.`;
+            document.getElementById('chat-history').appendChild(errorDiv);
         }
     }
-
     function addMessage(text, sender) {
         const history = document.getElementById('chat-history');
         const div = document.createElement('div');
@@ -252,4 +255,3 @@ const API_URL = 'https://basically-unhappily-subtitle.ngrok-free.de/analyze';
 </script>
 </body>
 </html>
-
