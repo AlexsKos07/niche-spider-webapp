@@ -94,9 +94,7 @@
     // Функция загрузки данных из API
     async function loadGraphData() {
         try {
-            // ВАЖНО: Замени localhost на реальный адрес при деплое!
-            // Для локального теста на компьютере это сработает, если открыть файл в браузере.
-            // В Telegram Mini App нужен HTTPS домен (см. Шаг 3).
+            https://basically-unhappily-subtitle.ngrok-free.de
             const apiUrl = 'http://localhost:8000/analyze'; 
             
             const response = await fetch(apiUrl, {
