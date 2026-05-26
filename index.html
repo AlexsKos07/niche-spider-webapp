@@ -111,9 +111,8 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // ВАЖНО: Вставь сюда СВОЮ ссылку Ngrok (с /analyze в конце!)
-    // Пример: 'https://basically-unhappily-subtitle.ngrok-free.de/analyze'
-    const API_URL = 'https://iobmuklm23q5.shares.zrok.io/analyze';
+    // ВАЖНО: Твоя актуальная ссылка Zrok с /analyze в конце
+    const API_URL = 'https://iobmuklm23q5.shares.zrok.io/analyze'; 
 
     let network = null;
     const nodes = new vis.DataSet([]);
@@ -209,13 +208,17 @@
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
-                    // ВАЖНО: Этот заголовок обходит проверку Ngrok
+                    // Этот заголовок помогает обойти некоторые проверки безопасности
                     'ngrok-skip-browser-warning': 'true' 
                 },
                 body: JSON.stringify({ query: query })
-            });         
+            });
 
-            if (!response.ok) throw new Error(`Ошибка API: ${response.status}`);
+            if (!response.ok) {
+                const errorBody = await response.text();
+                console.error('API error:', response.status, errorBody);
+                throw new Error(`Ошибка сервера: ${response.status} ${errorBody}`);
+            }
 
             const data = await response.json();
             
@@ -229,19 +232,23 @@
                 
                 // Центрируем камеру на корне (id: 0)
                 network.focus(0, { animation: true, scale: 1.2 });
+            } else {
+                throw new Error("Нет данных для отображения графа");
             }
 
         } catch (e) {
             console.error(e);
-            alert("Ошибка соединения с сервером. Проверьте консоль или запущен ли Ngrok.");
+            alert("Ошибка соединения: " + e.message + ". Проверьте, запущен ли Backend и Zrok.");
         } finally {
             loading.style.display = 'none';
         }
     }
 
     // Загружаем дефолтный граф при открытии
-    document.getElementById('queryInput').value = "Кофейня";
-    loadGraph();
+    const initialQuery = new URLSearchParams(window.location.search).get('query');
+    document.getElementById('queryInput').value = initialQuery || "Кофейня";
+    // Раскомментируйте строку ниже, если хотите автозагрузку при старте
+    // loadGraph();
 
 </script>
 </body>
