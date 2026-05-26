@@ -207,9 +207,13 @@
         try {
             const response = await fetch(API_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    // ВАЖНО: Этот заголовок обходит проверку Ngrok
+                    'ngrok-skip-browser-warning': 'true' 
+                },
                 body: JSON.stringify({ query: query })
-            });
+            });         
 
             if (!response.ok) throw new Error(`Ошибка API: ${response.status}`);
 
