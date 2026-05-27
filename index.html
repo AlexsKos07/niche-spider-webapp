@@ -476,7 +476,7 @@ html, body {
 <script src="https://cdn.jsdelivr.net/npm/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
 <script>
 (function () {
-  const BASE_URL = 'https://7s7xnesj8oud.share.zrok.io';
+  const BASE_URL = 'https://НОВЫЙ-URL.share.zrok.io';
   const API_URL        = BASE_URL + '/analyze';
   const CHAT_START_URL = BASE_URL + '/chat/start';
   const CHAT_MSG_URL   = BASE_URL + '/chat/message';
@@ -742,15 +742,50 @@ html, body {
   }
 
   // ── API helpers ───────────────────────────────────────────────────────
+  function formatApiError(status, raw) {
+    if (status === 502 || status === 503) {
+      return 'API недоступен (туннель есть, сервер выключен). Запусти: ./scripts/01-api.sh и ./scripts/02-zrok.sh';
+    }
+    if (status === 404) return 'Эндпоинт не найден — проверь URL API в BASE_URL';
+    return raw || `HTTP ${status}`;
+  }
+
   async function apiPost(url, body) {
-    const r = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    const data = await r.json();
-    if (!r.ok) throw new Error(data.detail || `HTTP ${r.status}`);
+    let r;
+    try {
+      r = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+    } catch (_) {
+      throw new Error(
+        'Нет связи с API (Failed to fetch). Запусти backend + zrok и обнови BASE_URL.'
+      );
+    }
+    const text = await r.text();
+    let data = {};
+    try { data = text ? JSON.parse(text) : {}; } catch (_) { data = { detail: text }; }
+    if (!r.ok) {
+      const detail = typeof data.detail === 'string' ? data.detail : formatApiError(r.status, text);
+      throw new Error(detail);
+    }
     return data;
+  }
+
+  async function pingApi() {
+    try {
+      const r = await fetch(BASE_URL + '/', { method: 'GET' });
+      if (r.ok) {
+        setStatus('API доступен', 'ok');
+        return true;
+      }
+      setStatus(formatApiError(r.status, ''), 'err');
+      return false;
+    } catch (_) {
+      setStatus('API недоступен — запусти backend + zrok', 'err');
+      return false;
+    }
   }
 
   // ── Start chat ────────────────────────────────────────────────────────
@@ -834,14 +869,18 @@ html, body {
     const input = document.getElementById('queryInput');
     input.value = q;
 
-    if (q && autostart) {
-      setStatus('Запускаю анализ…', 'busy');
-      setTimeout(() => startChat(), 400);
-    } else if (q) {
-      setStatus('Идея подставлена — нажми Старт', 'ok');
-    } else {
-      setStatus('Введи идею и нажми Старт');
-    }
+    pingApi().then((ok) => {
+      if (q && autostart && ok) {
+        setStatus('Запускаю анализ…', 'busy');
+        setTimeout(() => startChat(), 400);
+      } else if (q && autostart && !ok) {
+        setStatus('API недоступен — сначала запусти сервер', 'err');
+      } else if (q) {
+        setStatus(ok ? 'Идея подставлена — нажми Старт' : 'API недоступен', ok ? 'ok' : 'err');
+      } else if (!ok) {
+        setStatus('API недоступен — запусти backend + zrok', 'err');
+      }
+    });
   }
 
   document.readyState === 'loading'
