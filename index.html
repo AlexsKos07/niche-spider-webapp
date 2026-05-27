@@ -239,18 +239,41 @@
                 edges: {
                     width: 2,
                     arrows: 'to',
-                    color: { color: '#555' }
+                    color: { color: '#555' },
+                    smooth: {
+                        enabled: true,
+                        type: "cubicBezier",
+                        forceDirection: "vertical",
+                        roundness: 0.35
+                    }
                 },
                 groups: {
                     root: { color: { background: '#ef4444', border: '#b91c1c' }, size: 30 },
                     product: { color: { background: '#22c55e', border: '#15803d' } },
                     supplier: { color: { background: '#eab308', border: '#a16207' }, shape: 'square' },
                     warehouse: { color: { background: '#38bdf8', border: '#0369a1' }, shape: 'database' },
-                    competitor: { color: { background: '#ec4899', border: '#be185d' }, shape: 'triangle' }
+                    competitor: { color: { background: '#ec4899', border: '#be185d' }, shape: 'triangle' },
+                    audience: { color: { background: '#a78bfa', border: '#6d28d9' } },
+                    channel: { color: { background: '#60a5fa', border: '#1d4ed8' } },
+                    economics: { color: { background: '#34d399', border: '#047857' }, shape: 'box' },
+                    risk: { color: { background: '#fca5a5', border: '#b91c1c' }, shape: 'diamond' },
+                    category: { color: { background: '#d1d5db', border: '#6b7280' }, shape: 'box' }
+                },
+                layout: {
+                    hierarchical: {
+                        enabled: true,
+                        direction: "UD",
+                        sortMethod: "directed",
+                        levelSeparation: 140,
+                        nodeSpacing: 180,
+                        treeSpacing: 220,
+                        blockShifting: true,
+                        edgeMinimization: true,
+                        parentCentralization: true
+                    }
                 },
                 physics: {
-                    enabled: true,
-                    stabilization: { iterations: 80 }
+                    enabled: false
                 }
             }
         );
@@ -288,10 +311,85 @@
         document.getElementById('fallback-list').classList.remove('visible');
     }
 
+    function buildTreeGraph(graphNodes) {
+        const groupLabels = {
+            economics: "Экономика",
+            product: "Товары",
+            competitor: "Конкуренты",
+            audience: "Целевая аудитория",
+            channel: "Реклама и каналы",
+            supplier: "Поставщики",
+            risk: "Риски",
+            warehouse: "Логистика",
+            category: "Категория"
+        };
+
+        const root = graphNodes.find((n) => n.group === "root") || graphNodes[0];
+        if (!root) return { nodes: [], edges: [] };
+
+        const treeNodes = [{ ...root }];
+        const treeEdges = [];
+
+        const categories = new Map();
+        const others = graphNodes.filter((n) => n.id !== root.id);
+        let categoryId = 100000;
+
+        for (const node of others) {
+            const key = node.group || "category";
+            if (!categories.has(key)) {
+                const cid = categoryId++;
+                categories.set(key, cid);
+                treeNodes.push({
+                    id: cid,
+                    label: groupLabels[key] || key,
+                    group: "category"
+                });
+                treeEdges.push({
+                    from: root.id,
+                    to: cid,
+                    label: "раздел"
+                });
+            }
+
+            treeNodes.push(node);
+            treeEdges.push({
+                from: categories.get(key),
+                to: node.id,
+                label: "элемент"
+            });
+        }
+
+        return { nodes: treeNodes, edges: treeEdges };
+    }
+
     function showDetails(node) {
         document.getElementById('detail-title').textContent = node.label || 'Узел';
-        document.getElementById('detail-content').innerHTML =
-            `<div><b>Группа:</b> ${node.group || '—'}</div>`;
+        const groupLabel = node.group || "—";
+        const description = node.description ? `<div style="margin:8px 0 10px;"><b>Что это:</b> ${node.description}</div>` : "";
+
+        const insights = Array.isArray(node.insights) && node.insights.length
+            ? `<div style="margin:8px 0;"><b>Ключевые выводы:</b><ul style="margin:6px 0 0 16px;">${node.insights.map((x) => `<li>${x}</li>`).join("")}</ul></div>`
+            : "";
+
+        const actions = Array.isArray(node.actions) && node.actions.length
+            ? `<div style="margin:8px 0;"><b>Что делать:</b><ol style="margin:6px 0 0 18px;">${node.actions.map((x) => `<li>${x}</li>`).join("")}</ol></div>`
+            : "";
+
+        const sources = Array.isArray(node.sources) && node.sources.length
+            ? `<div style="margin:8px 0;"><b>Источники/поставщики:</b><ul style="margin:6px 0 0 16px;">${node.sources.map((s) => {
+                const title = s?.title || "Ссылка";
+                const url = s?.url || "#";
+                return `<li><a href="${url}" target="_blank" rel="noopener noreferrer">${title}</a></li>`;
+            }).join("")}</ul></div>`
+            : "";
+
+        document.getElementById('detail-content').innerHTML = `
+            <div><b>Группа:</b> ${groupLabel}</div>
+            ${description}
+            ${insights}
+            ${actions}
+            ${sources}
+        `;
         document.getElementById('details-panel').classList.add('active');
     }
 
@@ -335,14 +433,15 @@
 
             if (visReady && network && nodes && edges) {
                 hideFallback();
+                const treeGraph = buildTreeGraph(graphNodes);
                 nodes.clear();
                 edges.clear();
-                nodes.add(graphNodes);
-                edges.add(graphEdges);
+                nodes.add(treeGraph.nodes);
+                edges.add(treeGraph.edges);
                 layoutHeights();
                 setTimeout(() => {
                     network.redraw();
-                    network.fit({ animation: { duration: 400 } });
+                    network.fit({ animation: { duration: 500 } });
                 }, 120);
             }
 
