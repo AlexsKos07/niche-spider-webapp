@@ -476,7 +476,7 @@ html, body {
 <script src="https://cdn.jsdelivr.net/npm/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
 <script>
 (function () {
-  const BASE_URL = 'https://zyh7nq3jp4r1.share.zrok.io';
+  const BASE_URL = 'https://ВАШ_URL.share.zrok.io';
   const API_URL        = BASE_URL + '/analyze';
   const CHAT_START_URL = BASE_URL + '/chat/start';
   const CHAT_MSG_URL   = BASE_URL + '/chat/message';
@@ -712,13 +712,24 @@ html, body {
 
     if (Array.isArray(node.sources) && node.sources.length) {
       html += `<div class="detail-section">
-        <div class="detail-section-label">Источники / поставщики</div>`;
+        <div class="detail-section-label">Источники (кратко)</div>`;
       for (const s of node.sources) {
-        const url = s?.url || '#';
-        const title = s?.title || 'Ссылка';
-        html += `<a class="detail-source-link" href="${url}" target="_blank" rel="noopener">
-          🔗 ${escHtml(title)}<span class="link-arrow">↗</span>
-        </a>`;
+        const url = s?.url || '';
+        const title = s?.title || 'Источник';
+        const passages = Array.isArray(s?.passages) ? s.passages : [];
+        const snippet = passages.length ? passages[0] : '';
+        const safeUrl = escHtml(url);
+        html += `<div style="margin-bottom:8px;">
+          <div style="display:flex;gap:8px;align-items:center;">
+            <a class="detail-source-link" href="${safeUrl || '#'}" target="_blank" rel="noopener" style="flex:1;">
+              🔗 ${escHtml(title)}<span class="link-arrow">↗</span>
+            </a>
+            ${url ? `<button type="button" class="detail-btn" style="width:auto;padding:10px 12px;background:rgba(99,102,241,.18);color:var(--accent2);border-radius:12px;" onclick="window.__copyLink('${safeUrl}')">Копировать</button>` : ''}
+          </div>
+          ${snippet ? `<div style="margin-top:6px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--tg-bg);color:var(--tg-text);font-size:13px;line-height:1.45;">
+            ${escHtml(snippet)}
+          </div>` : ''}
+        </div>`;
       }
       html += '</div>';
     }
@@ -887,6 +898,27 @@ html, body {
     ? document.addEventListener('DOMContentLoaded', boot)
     : boot();
 })();
+
+// global helper for copy buttons inside HTML
+window.__copyLink = async function (url) {
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(url);
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = url;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    try {
+      window.Telegram?.WebApp?.showPopup?.({ title: 'Скопировано', message: 'Ссылка скопирована в буфер обмена.', buttons: [{ type: 'ok' }] });
+    } catch (_) {}
+  } catch (e) {
+    alert('Не удалось скопировать ссылку: ' + (e?.message || e));
+  }
+};
 </script>
 </body>
 </html>
