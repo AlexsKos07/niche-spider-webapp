@@ -123,7 +123,54 @@ html, body {
   background: var(--tg-secondary);
   border-bottom: 1px solid var(--border);
   max-height: 38vh;
+  transition: max-height .25s ease, padding .25s ease;
 }
+#chat-panel.collapsed {
+  max-height: 42px;
+  padding: 6px 12px;
+  gap: 0;
+  overflow: hidden;
+}
+#chat-panel.collapsed #chat-log,
+#chat-panel.collapsed #chat-input-row {
+  display: none;
+}
+#chat-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-shrink: 0;
+}
+#chat-panel-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--tg-hint);
+  letter-spacing: 0.02em;
+}
+#chat-free-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent2);
+  background: rgba(99,102,241,.15);
+  border: 1px solid rgba(99,102,241,.35);
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-left: auto;
+  margin-right: 6px;
+}
+#chatToggleBtn {
+  flex: 0 0 auto;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--tg-bg);
+  color: var(--tg-text);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+#chatToggleBtn:active { opacity: .85; }
 #chat-log {
   flex: 1;
   overflow-y: auto;
@@ -239,11 +286,42 @@ html, body {
 #graph-container {
   flex: 1 1 0;
   position: relative;
-  background: var(--tg-bg);
+  background: #0b1220;
   min-height: 0;
   overflow: hidden;
 }
-#mynetwork { width: 100%; height: 100%; }
+#mynetwork {
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at 30% 20%, #1a2744 0%, #0b1220 55%, #070b14 100%);
+}
+#graph-tools {
+  position: absolute;
+  right: 10px;
+  bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 12;
+}
+.gt-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  border: 1px solid var(--border);
+  background: rgba(15,23,42,.82);
+  backdrop-filter: blur(6px);
+  color: var(--tg-text);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s, transform .1s;
+}
+.gt-btn:active { transform: scale(.92); background: var(--accent); }
 
 /* ── Fallback list ─────────────────────────── */
 #fallback-list {
@@ -309,13 +387,14 @@ html, body {
 #details-panel {
   position: absolute;
   left: 0; right: 0; bottom: 0;
-  max-height: 60%;
-  overflow-y: auto;
+  max-height: 82%;
+  display: flex;
+  flex-direction: column;
   background: var(--card);
-  border-top: 1px solid var(--border);
+  border-top: 2px solid var(--accent);
   border-radius: 20px 20px 0 0;
-  padding: 0 0 12px;
-  box-shadow: 0 -8px 32px rgba(0,0,0,.4);
+  padding: 0;
+  box-shadow: 0 -10px 40px rgba(0,0,0,.55);
   transform: translateY(105%);
   transition: transform .28s cubic-bezier(.4,0,.2,1);
   z-index: 20;
@@ -323,18 +402,22 @@ html, body {
 }
 #details-panel.active { transform: translateY(0); }
 #detail-handle {
-  width: 36px;
-  height: 4px;
-  border-radius: 2px;
+  width: 44px;
+  height: 5px;
+  border-radius: 3px;
   background: var(--border);
-  margin: 10px auto 14px;
+  margin: 9px auto 12px;
+  cursor: pointer;
+  flex-shrink: 0;
 }
+#detail-handle:active { background: var(--accent2); }
 #detail-header {
   padding: 0 16px 12px;
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: flex-start;
   gap: 10px;
+  flex-shrink: 0;
 }
 #detail-icon {
   font-size: 22px;
@@ -358,7 +441,7 @@ html, body {
   white-space: nowrap;
   margin-top: 3px;
 }
-#detail-body { padding: 14px 16px; }
+#detail-body { padding: 14px 16px; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
 .detail-section {
   margin-bottom: 14px;
 }
@@ -394,11 +477,15 @@ html, body {
 .detail-source-link:active { opacity: .75; }
 .link-arrow { font-size: 14px; margin-left: auto; color: var(--muted); }
 #detail-actions {
-  padding: 0 14px;
+  padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 8px;
+  flex-shrink: 0;
+  border-top: 1px solid var(--border);
+  background: var(--card);
 }
+#detail-actions .detail-btn { flex: 1; }
 .detail-btn {
   width: 100%;
   padding: 11px;
@@ -411,7 +498,30 @@ html, body {
 }
 .detail-btn:active { opacity: .8; transform: scale(.98); }
 #askNodeBtn  { background: rgba(99,102,241,.18); color: var(--accent2); }
+#askNodeBtn:disabled { opacity: .45; cursor: not-allowed; }
 #closeBtn    { background: var(--border); color: var(--tg-text); }
+.detail-tip-box {
+  margin-top: 6px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(99,102,241,.1);
+  border: 1px solid rgba(99,102,241,.25);
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--tg-text);
+}
+.detail-source-card {
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--tg-bg);
+}
+.detail-source-domain {
+  font-size: 11px;
+  color: var(--tg-hint);
+  margin-top: 2px;
+}
 </style>
 </head>
 <body>
@@ -431,6 +541,11 @@ html, body {
 
   <!-- Chat -->
   <div id="chat-panel">
+    <div id="chat-panel-head">
+      <span id="chat-panel-title">Чат с AI</span>
+      <span id="chat-free-badge" title="Бесплатные вопросы к AI после опроса">AI 5/5</span>
+      <button id="chatToggleBtn" type="button" aria-expanded="true">▼ Свернуть</button>
+    </div>
     <div id="chat-log"></div>
     <div id="chat-input-row">
       <textarea id="chatInput" placeholder="Ответь на вопрос AI…" rows="1"></textarea>
@@ -447,6 +562,11 @@ html, body {
   <!-- Graph -->
   <div id="graph-container">
     <div id="mynetwork"></div>
+    <div id="graph-tools">
+      <button id="gtZoomIn" class="gt-btn" type="button" title="Приблизить">+</button>
+      <button id="gtZoomOut" class="gt-btn" type="button" title="Отдалить">−</button>
+      <button id="gtFit" class="gt-btn" type="button" title="Показать весь граф">⤢</button>
+    </div>
     <div id="fallback-list"></div>
 
     <div id="loading-overlay">
@@ -476,14 +596,32 @@ html, body {
 <script src="https://cdn.jsdelivr.net/npm/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
 <script>
 (function () {
-  const BASE_URL = 'https://6zp1v3uilu3q.share.zrok.io';
+  const BASE_URL = 'https://ck650u5r4m07.share.zrok.io';
   const API_URL        = BASE_URL + '/analyze';
   const CHAT_START_URL = BASE_URL + '/chat/start';
   const CHAT_MSG_URL   = BASE_URL + '/chat/message';
   const tg = window.Telegram?.WebApp;
 
   let network = null, nodes = null, edges = null, visReady = false;
-  let chatSessionId = null, selectedNode = null;
+  let chatSessionId = null, selectedNode = null, chatCompleted = false;
+  let freeQuestionsLeft = 5, freeQuestionsLimit = 5;
+  let graphNodeMeta = new Map();
+
+  function updateFreeBadge(left, limit) {
+    freeQuestionsLeft = left;
+    freeQuestionsLimit = limit;
+    const el = document.getElementById('chat-free-badge');
+    if (!el) return;
+    if (!chatCompleted) {
+      el.textContent = 'опрос';
+      el.title = 'Сначала ответьте на вопросы — потом до ' + limit + ' вопросов к AI';
+      return;
+    }
+    el.textContent = 'AI ' + left + '/' + limit;
+    el.title = 'Бесплатных вопросов к AI осталось: ' + left + ' из ' + limit;
+    if (left === 0) el.style.opacity = '0.55';
+    else el.style.opacity = '1';
+  }
 
   // ── Status ──────────────────────────────────────────────────────────
   function setStatus(text, state = 'idle') {
@@ -534,26 +672,36 @@ html, body {
     category:'📁', plan:'🗂️', warehouse:'🏪', generic:'📌'
   };
   const GROUP_COLORS = {
-    root:      { bg:'#ef4444', border:'#b91c1c' },
-    product:   { bg:'#22c55e', border:'#15803d' },
-    supplier:  { bg:'#f59e0b', border:'#b45309' },
-    competitor:{ bg:'#ec4899', border:'#be185d' },
-    audience:  { bg:'#a78bfa', border:'#6d28d9' },
-    channel:   { bg:'#38bdf8', border:'#0369a1' },
-    economics: { bg:'#34d399', border:'#047857' },
-    risk:      { bg:'#f87171', border:'#b91c1c' },
-    category:  { bg:'#64748b', border:'#475569' },
-    plan:      { bg:'#06b6d4', border:'#0e7490' },
-    warehouse: { bg:'#60a5fa', border:'#1d4ed8' },
+    root:      { bg:'#dc2626', border:'#fecaca', font:'#ffffff' },
+    product:   { bg:'#15803d', border:'#bbf7d0', font:'#ffffff' },
+    supplier:  { bg:'#b45309', border:'#fde68a', font:'#ffffff' },
+    competitor:{ bg:'#be185d', border:'#fbcfe8', font:'#ffffff' },
+    audience:  { bg:'#6d28d9', border:'#ddd6fe', font:'#ffffff' },
+    channel:   { bg:'#0369a1', border:'#bae6fd', font:'#ffffff' },
+    economics: { bg:'#047857', border:'#a7f3d0', font:'#ffffff' },
+    risk:      { bg:'#991b1b', border:'#fecaca', font:'#ffffff' },
+    category:  { bg:'#1e293b', border:'#94a3b8', font:'#f1f5f9' },
+    plan:      { bg:'#0e7490', border:'#a5f3fc', font:'#ffffff' },
+    warehouse: { bg:'#1d4ed8', border:'#bfdbfe', font:'#ffffff' },
   };
 
   function makeGroups() {
     const g = {};
     for (const [key, c] of Object.entries(GROUP_COLORS)) {
       g[key] = {
-        color: { background: c.bg, border: c.border, highlight: { background: c.bg, border: '#fff' } },
-        shape: key === 'root' ? 'ellipse' : key === 'risk' ? 'diamond' : key === 'supplier' ? 'hexagon' : 'box',
-        font: { color: '#111', size: key === 'root' ? 14 : 12 }
+        color: {
+          background: c.bg,
+          border: c.border,
+          highlight: { background: c.bg, border: '#ffffff' }
+        },
+        shape: key === 'root' ? 'ellipse' : key === 'risk' ? 'diamond' : 'box',
+        borderWidth: key === 'category' ? 2 : 2.5,
+        font: {
+          color: c.font || '#fff',
+          size: key === 'root' ? 13 : 11,
+          bold: { color: c.font || '#fff' },
+          face: 'system-ui,sans-serif'
+        }
       };
     }
     return g;
@@ -572,43 +720,58 @@ html, body {
       {
         nodes: {
           shape: 'box',
-          margin: { top: 8, right: 11, bottom: 8, left: 11 },
-          widthConstraint: { maximum: 230 },
-          font: { size: 12, color: '#111', multi: 'html' },
-          borderWidth: 2,
-          shadow: { enabled: true, size: 4, x: 2, y: 2, color: 'rgba(0,0,0,.25)' }
+          margin: { top: 11, right: 14, bottom: 11, left: 14 },
+          widthConstraint: { minimum: 80, maximum: 175 },
+          heightConstraint: { minimum: 40, valign: 'middle' },
+          font: { size: 13, color: '#f8fafc', multi: false, face: 'system-ui,sans-serif', vadjust: 0 },
+          borderWidth: 2.5,
+          shapeProperties: { borderRadius: 10 },
+          shadow: { enabled: true, size: 8, x: 0, y: 3, color: 'rgba(0,0,0,.5)' }
         },
         edges: {
-          width: 1.5,
-          arrows: { to: { enabled: true, scaleFactor: .6 } },
-          color: { color: '#475569', highlight: '#6366f1' },
-          smooth: false,
+          width: 1.8,
+          selectionWidth: 2,
+          arrows: { to: { enabled: true, scaleFactor: .55, type: 'arrow' } },
+          color: { color: '#5b6b86', highlight: '#a5b4fc', hover: '#c7d2fe', opacity: 0.9 },
+          smooth: { type: 'cubicBezier', forceDirection: 'horizontal', roundness: 0.45 },
           font: { size: 0 }
         },
         groups: makeGroups(),
         layout: {
+          improvedLayout: true,
           hierarchical: {
             enabled: true,
             direction: 'LR',
             sortMethod: 'directed',
-            levelSeparation: 240,
-            nodeSpacing: 200,
-            treeSpacing: 240,
+            shakeTowards: 'roots',
+            levelSeparation: 210,
+            nodeSpacing: 130,
+            treeSpacing: 170,
             blockShifting: true,
             edgeMinimization: true,
             parentCentralization: true
           }
         },
         physics: { enabled: false },
-        interaction: { dragView: true, zoomView: true, hover: true, tooltipDelay: 150 }
+        interaction: {
+          dragView: true,
+          zoomView: true,
+          hover: true,
+          tooltipDelay: 200,
+          navigationButtons: false,
+          keyboard: false
+        }
       }
     );
 
     network.on('click', ({ nodes: ids }) => {
+      collapseChatForGraph();
       if (!ids.length) { closeDetails(); return; }
-      const nd = nodes.get(ids[0]);
+      const nd = resolveNode(ids[0]);
       if (nd) showDetails(nd);
     });
+    network.on('dragStart', collapseChatForGraph);
+    network.on('zoom', collapseChatForGraph);
 
     visReady = true;
     return true;
@@ -621,11 +784,34 @@ html, body {
     risk:'Риски', warehouse:'Логистика', category:'Разделы', plan:'План'
   };
 
+  function shortenLabel(label, maxLen = 44) {
+    let s = String(label || '').trim();
+    if (!s) return '—';
+    const srcIdx = s.indexOf(' — источник:');
+    if (srcIdx > 0) s = s.slice(0, srcIdx).trim();
+    const dashIdx = s.search(/\s—\shttps?:\/\//i);
+    if (dashIdx > 0) s = s.slice(0, dashIdx).trim();
+    s = s.replace(/https?:\/\/\S+/gi, '').replace(/\s+/g, ' ').trim();
+    if (s.length > maxLen) s = s.slice(0, maxLen - 1) + '…';
+    return s || '—';
+  }
+
+  function nodeForVis(node) {
+    const label = String(node.label || '');
+    const isProgressRoot = node.group === 'root' && /^Опрос\s+\d/.test(label);
+    const isSectionHeader =
+      node.group === 'category' ||
+      Object.values(GROUP_LABELS).includes(label) ||
+      label === 'Ваши ответы';
+    const keepFull = isProgressRoot || isSectionHeader;
+    return { ...node, label: keepFull ? node.label : shortenLabel(node.label) };
+  }
+
   function buildTree(rawNodes) {
     const root = rawNodes.find(n => n.group === 'root') || rawNodes[0];
     if (!root) return { nodes: [], edges: [] };
 
-    const treeNodes = [{ ...root }];
+    const treeNodes = [nodeForVis(root)];
     const treeEdges = [];
     const cats = new Map();
     let cid = 9e5;
@@ -633,7 +819,7 @@ html, body {
     for (const node of rawNodes) {
       if (node.id === root.id) continue;
       if (node.group === 'category' || node.group === 'plan') {
-        treeNodes.push(node);
+        treeNodes.push(nodeForVis(node));
         treeEdges.push({ from: root.id, to: node.id, label: '' });
         continue;
       }
@@ -644,15 +830,23 @@ html, body {
         treeNodes.push({ id, label: GROUP_LABELS[key] || key, group: 'category' });
         treeEdges.push({ from: root.id, to: id, label: '' });
       }
-      treeNodes.push(node);
+      treeNodes.push(nodeForVis(node));
       treeEdges.push({ from: cats.get(key), to: node.id, label: '' });
     }
     return { nodes: treeNodes, edges: treeEdges };
   }
 
   // ── Render graph ─────────────────────────────────────────────────────
+  function resolveNode(idOrNode) {
+    if (idOrNode == null) return null;
+    const id = typeof idOrNode === 'object' ? idOrNode.id : idOrNode;
+    return graphNodeMeta.get(id) || nodes.get(id) || null;
+  }
+
   function renderGraph(gNodes, gEdges) {
     if (!gNodes.length) return;
+    graphNodeMeta.clear();
+    for (const n of gNodes) graphNodeMeta.set(n.id, n);
     if (!visReady) { showFallback(gNodes, gEdges); return; }
     hideFallback();
     const { nodes: tn, edges: te } = buildTree(gNodes);
@@ -678,64 +872,137 @@ html, body {
     return map[g] || g;
   }
 
-  function showDetails(node) {
-    selectedNode = node;
-    document.getElementById('detail-icon').textContent = nodeIcon(node.group);
-    document.getElementById('detail-title').textContent = node.label || 'Узел';
-    document.getElementById('detail-group-badge').textContent = groupName(node.group);
+  const GROUP_WHY = {
+    economics: 'Экономика показывает, сойдётся ли проект по деньгам: маржа, чек и прибыль.',
+    product: 'Товар/услуга — то, что вы тестируете на спрос и сравниваете с конкурентами.',
+    competitor: 'Конкуренты задают ценовой коридор и уровень ожиданий клиента.',
+    audience: 'Аудитория определяет оффер, каналы и тон коммуникации.',
+    channel: 'Канал — где вы покупаете внимание и первые продажи.',
+    supplier: 'Поставщик влияет на себестоимость, сроки и риск качества.',
+    risk: 'Риски — то, что может «съесть» маржу или сорвать запуск.',
+    root: 'Корень проекта: сводка гипотез по нише.',
+    plan: 'Параметры из вашего диалога с AI.',
+    category: 'Группа связанных блоков на карте.',
+  };
 
-    const c = GROUP_COLORS[node.group];
+  function sourceDomain(url) {
+    try {
+      return new URL(url).hostname.replace(/^www\./, '');
+    } catch (_) {
+      return '';
+    }
+  }
+
+  function showDetails(node) {
+    const meta = resolveNode(node.id) || node;
+    selectedNode = meta;
+    const title = meta.full_label || meta.label || 'Узел';
+    const askBtn = document.getElementById('askNodeBtn');
+
+    document.getElementById('detail-icon').textContent = nodeIcon(meta.group);
+    document.getElementById('detail-title').textContent = title;
+    document.getElementById('detail-group-badge').textContent = groupName(meta.group);
+
+    const c = GROUP_COLORS[meta.group];
     if (c) document.getElementById('detail-group-badge').style.background = c.bg;
 
+    if (askBtn) {
+      askBtn.disabled = !chatSessionId;
+      askBtn.textContent = chatCompleted
+        ? '💬 Уточнить у AI'
+        : '💬 Уточнить у AI (после опроса)';
+    }
+
     let html = '';
+    const detailCopyUrls = [];
 
-    if (node.description) {
+    if (GROUP_WHY[meta.group]) {
       html += `<div class="detail-section">
-        <div class="detail-section-label">О блоке</div>
-        <div class="detail-section-text">${escHtml(node.description)}</div>
+        <div class="detail-section-label">Зачем этот блок</div>
+        <div class="detail-tip-box">${escHtml(GROUP_WHY[meta.group])}</div>
       </div>`;
     }
 
-    if (Array.isArray(node.insights) && node.insights.length) {
+    if (meta.description) {
       html += `<div class="detail-section">
-        <div class="detail-section-label">Ключевые метрики</div>
-        <ul class="detail-list">${node.insights.map(i => `<li>${escHtml(i)}</li>`).join('')}</ul>
+        <div class="detail-section-label">Суть</div>
+        <div class="detail-section-text">${escHtml(meta.description)}</div>
       </div>`;
     }
 
-    if (Array.isArray(node.actions) && node.actions.length) {
+    if (Array.isArray(meta.insights) && meta.insights.length) {
       html += `<div class="detail-section">
-        <div class="detail-section-label">Что делать</div>
-        <ol class="detail-list">${node.actions.map(a => `<li>${escHtml(a)}</li>`).join('')}</ol>
+        <div class="detail-section-label">Ключевое</div>
+        <ul class="detail-list">${meta.insights.map(i => `<li>${escHtml(i)}</li>`).join('')}</ul>
       </div>`;
     }
 
-    if (Array.isArray(node.sources) && node.sources.length) {
+    if (Array.isArray(meta.tips) && meta.tips.length) {
       html += `<div class="detail-section">
-        <div class="detail-section-label">Источники (кратко)</div>`;
-      for (const s of node.sources) {
+        <div class="detail-section-label">На что обратить внимание</div>
+        <ul class="detail-list">${meta.tips.map(t => `<li>${escHtml(t)}</li>`).join('')}</ul>
+      </div>`;
+    }
+
+    if (Array.isArray(meta.actions) && meta.actions.length) {
+      html += `<div class="detail-section">
+        <div class="detail-section-label">Пошагово</div>
+        <ol class="detail-list">${meta.actions.map(a => `<li>${escHtml(a)}</li>`).join('')}</ol>
+      </div>`;
+    }
+
+    if (Array.isArray(meta.sources) && meta.sources.length) {
+      html += `<div class="detail-section">
+        <div class="detail-section-label">Источники из поиска</div>`;
+      for (const s of meta.sources) {
         const url = s?.url || '';
-        const title = s?.title || 'Источник';
-        const passages = Array.isArray(s?.passages) ? s.passages : [];
-        const snippet = passages.length ? passages[0] : '';
+        const titleSrc = _shortSourceTitle(s?.title || 'Источник');
+        const passages = Array.isArray(s?.passages) ? s.passages.filter(Boolean) : [];
+        const domain = sourceDomain(url);
         const safeUrl = escHtml(url);
-        html += `<div style="margin-bottom:8px;">
-          <div style="display:flex;gap:8px;align-items:center;">
-            <a class="detail-source-link" href="${safeUrl || '#'}" target="_blank" rel="noopener" style="flex:1;">
-              🔗 ${escHtml(title)}<span class="link-arrow">↗</span>
-            </a>
-            ${url ? `<button type="button" class="detail-btn" style="width:auto;padding:10px 12px;background:rgba(99,102,241,.18);color:var(--accent2);border-radius:12px;" onclick="window.__copyLink('${safeUrl}')">Копировать</button>` : ''}
-          </div>
-          ${snippet ? `<div style="margin-top:6px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--tg-bg);color:var(--tg-text);font-size:13px;line-height:1.45;">
-            ${escHtml(snippet)}
-          </div>` : ''}
-        </div>`;
+        let copyBtn = '';
+        if (url) {
+          const copyIdx = detailCopyUrls.length;
+          detailCopyUrls.push(url);
+          copyBtn = `<button type="button" class="detail-btn copy-src-btn" data-copy-idx="${copyIdx}" style="width:auto;padding:8px 10px;font-size:12px;background:rgba(99,102,241,.18);color:var(--accent2);border-radius:10px;">Копировать</button>`;
+        }
+        html += `<div class="detail-source-card">
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:700;font-size:14px;">${escHtml(titleSrc)}</div>
+              ${domain ? `<div class="detail-source-domain">${escHtml(domain)}</div>` : ''}
+            </div>
+            ${copyBtn}
+          </div>`;
+        for (const p of passages.slice(0, 2)) {
+          html += `<div style="margin-top:8px;font-size:13px;line-height:1.45;color:var(--tg-text);">${escHtml(p)}</div>`;
+        }
+        if (url) {
+          html += `<a class="detail-source-link" href="${safeUrl}" target="_blank" rel="noopener" style="display:inline-block;margin-top:8px;font-size:13px;">
+            Открыть источник <span class="link-arrow">↗</span>
+          </a>`;
+        }
+        html += '</div>';
       }
       html += '</div>';
     }
 
-    document.getElementById('detail-body').innerHTML = html || '<div style="color:var(--muted);font-size:13px;">Кликни «Уточнить у AI» чтобы разобрать этот блок.</div>';
+    document.getElementById('detail-body').innerHTML = html || '<div style="color:var(--muted);font-size:13px;">Нажми «Уточнить у AI» — разберём блок в чате.</div>';
     document.getElementById('details-panel').classList.add('active');
+
+    document.querySelectorAll('.copy-src-btn').forEach(btn => {
+      const url = detailCopyUrls[Number(btn.getAttribute('data-copy-idx'))];
+      if (url) btn.onclick = () => window.__copyLink(url);
+    });
+  }
+
+  function _shortSourceTitle(title) {
+    let s = String(title || '').trim();
+    if (s.startsWith('http')) {
+      const d = sourceDomain(s);
+      return d || 'Источник';
+    }
+    return shortenLabel(s, 56);
   }
 
   function closeDetails() {
@@ -743,13 +1010,76 @@ html, body {
     document.getElementById('details-panel').classList.remove('active');
   }
 
-  function askAboutNode() {
-    if (!selectedNode) return;
+  function setChatCollapsed(collapsed) {
+    const panel = document.getElementById('chat-panel');
+    const btn = document.getElementById('chatToggleBtn');
+    panel.classList.toggle('collapsed', collapsed);
+    btn.textContent = collapsed ? '▲ Развернуть чат' : '▼ Свернуть';
+    btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    if (network) setTimeout(() => network.redraw(), 60);
+  }
+
+  function expandChatPanel() { setChatCollapsed(false); }
+
+  function toggleChatPanel() {
+    const collapsed = document.getElementById('chat-panel').classList.contains('collapsed');
+    setChatCollapsed(!collapsed);
+  }
+
+  // Автоскрытие верхнего чата, когда пользователь работает с графом.
+  function collapseChatForGraph() {
+    const panel = document.getElementById('chat-panel');
+    if (!panel.classList.contains('collapsed')) setChatCollapsed(true);
+  }
+
+  async function sendMsgText(msg) {
+    if (!msg || !chatSessionId) return;
+    setStatus('AI думает…', 'busy');
+    document.getElementById('loading-overlay').classList.add('visible');
+    document.getElementById('loading-text').textContent = 'Готовлю ответ…';
+    try {
+      const data = await apiPost(CHAT_MSG_URL, { session_id: chatSessionId, message: msg });
+      chatCompleted = !!data.is_completed;
+      updateFreeBadge(
+        data.free_questions_left ?? freeQuestionsLeft,
+        data.free_questions_limit ?? freeQuestionsLimit
+      );
+      if (!data.is_completed) expandChatPanel();
+      appendMsg('ai', data.assistant_message);
+      renderGraph(data.graph_nodes || [], data.graph_edges || []);
+      setStatus(
+        data.is_completed
+          ? ('✅ Граф готов · AI вопросов: ' + (data.free_questions_left ?? 0))
+          : 'Жду ответа на вопросы',
+        'ok'
+      );
+    } catch (err) {
+      setStatus('Ошибка: ' + err.message, 'err');
+      appendMsg('ai', '❌ ' + err.message);
+    } finally {
+      document.getElementById('loading-overlay').classList.remove('visible');
+    }
+  }
+
+  async function askAboutNode() {
+    const meta = selectedNode && resolveNode(selectedNode.id);
+    if (!meta) return;
+    if (!chatSessionId) {
+      expandChatPanel();
+      appendMsg('ai', 'Сначала нажми «Старт» и опиши идею бизнеса.');
+      return;
+    }
+    if (chatCompleted && freeQuestionsLeft <= 0) {
+      expandChatPanel();
+      appendMsg('ai', 'Лимит бесплатных вопросов к AI исчерпан. Откройте карточку блока на графе.');
+      return;
+    }
+    const title = meta.full_label || meta.label || 'блок';
+    const question = `По блоку «${title}» (${groupName(meta.group)}): что важно учесть и какие конкретные шаги сделать?`;
     closeDetails();
-    const inp = document.getElementById('chatInput');
-    inp.value = `По блоку "${selectedNode.label}" подскажи подробнее: `;
-    inp.focus();
-    autoGrow(inp);
+    expandChatPanel();
+    appendMsg('user', question);
+    await sendMsgText(question);
   }
 
   // ── API helpers ───────────────────────────────────────────────────────
@@ -814,9 +1144,14 @@ html, body {
     try {
       const data = await apiPost(CHAT_START_URL, { query });
       chatSessionId = data.session_id;
+      chatCompleted = !!data.is_completed;
+      updateFreeBadge(
+        data.free_questions_left ?? 5,
+        data.free_questions_limit ?? 5
+      );
       appendMsg('ai', data.assistant_message);
       renderGraph(data.graph_nodes || [], data.graph_edges || []);
-      setStatus(data.text_report || 'Чат запущен', 'ok');
+      setStatus(data.text_report || 'Ответьте на вопросы — граф появится в конце', 'ok');
     } catch (err) {
       setStatus('Ошибка: ' + err.message, 'err');
       appendMsg('ai', '❌ ' + err.message);
@@ -832,20 +1167,12 @@ html, body {
     if (!msg) return;
     if (!chatSessionId) { appendMsg('ai', 'Сначала нажми Старт и опиши свою идею.'); return; }
 
+    expandChatPanel();
     appendMsg('user', msg);
     inp.value = '';
     autoGrow(inp);
-    setStatus('AI думает…', 'busy');
-
-    try {
-      const data = await apiPost(CHAT_MSG_URL, { session_id: chatSessionId, message: msg });
-      appendMsg('ai', data.assistant_message);
-      renderGraph(data.graph_nodes || [], data.graph_edges || []);
-      setStatus(data.is_completed ? '✅ План собран. Кликай на блоки, задавай вопросы.' : 'Жду ответа', 'ok');
-    } catch (err) {
-      setStatus('Ошибка: ' + err.message, 'err');
-      appendMsg('ai', '❌ ' + err.message);
-    }
+    document.getElementById('loading-text').textContent = 'Обрабатываю ответ…';
+    await sendMsgText(msg);
   }
 
   // ── Boot ──────────────────────────────────────────────────────────────
@@ -856,7 +1183,20 @@ html, body {
     document.getElementById('buildBtn').addEventListener('click', startChat);
     document.getElementById('sendChatBtn').addEventListener('click', sendMsg);
     document.getElementById('closeBtn').addEventListener('click', closeDetails);
-    document.getElementById('askNodeBtn').addEventListener('click', askAboutNode);
+    document.getElementById('askNodeBtn').addEventListener('click', () => { askAboutNode(); });
+    document.getElementById('chatToggleBtn').addEventListener('click', toggleChatPanel);
+    document.getElementById('detail-handle').addEventListener('click', closeDetails);
+
+    const zoomBy = (factor) => {
+      if (!network) return;
+      const s = network.getScale() * factor;
+      network.moveTo({ scale: s, animation: { duration: 200 } });
+    };
+    document.getElementById('gtZoomIn').addEventListener('click', () => zoomBy(1.3));
+    document.getElementById('gtZoomOut').addEventListener('click', () => zoomBy(0.77));
+    document.getElementById('gtFit').addEventListener('click', () => {
+      if (network) network.fit({ animation: { duration: 400 } });
+    });
 
     const ci = document.getElementById('chatInput');
     ci.addEventListener('keydown', e => {
@@ -879,6 +1219,8 @@ html, body {
 
     const input = document.getElementById('queryInput');
     input.value = q;
+
+    updateFreeBadge(5, 5);
 
     pingApi().then((ok) => {
       if (q && autostart && ok) {
