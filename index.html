@@ -7,6 +7,17 @@
 <title>Niche Spider</title>
 <link href="https://cdn.jsdelivr.net/npm/vis-network@9.1.9/styles/vis-network.min.css" rel="stylesheet" />
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+(function () {
+  try {
+    var tg = window.Telegram && window.Telegram.WebApp;
+    var theme = tg && tg.colorScheme === 'light' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch (_) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+})();
+</script>
 <style>
 :root,
 [data-theme="dark"] {
@@ -18,6 +29,9 @@
   --tg-hint:     #9a8f6e;
   --tg-secondary:#141414;
   --tg-link:     #D4A574;
+  --surface:     #141414;
+  --input-bg:    #101010;
+  --msg-ai-bg:   #1a1a1a;
   --card:        #1a1a1a;
   --graph-bg:    #0a0a0a;
   --panel-surface: rgba(18,18,20,0.96);
@@ -50,6 +64,9 @@
   --tg-text:     #1a1408;
   --tg-hint:     #6b5340;
   --tg-secondary:#f5f0eb;
+  --surface:     #ffffff;
+  --input-bg:    #ffffff;
+  --msg-ai-bg:   #fff8ee;
   --card:        #fff8ee;
   --graph-bg:    #ebe4d8;
   --panel-surface: rgba(255,252,247,0.98);
@@ -84,7 +101,7 @@ html, body {
 #header {
   flex: 0 0 auto;
   padding: 10px 14px 8px;
-  background: var(--tg-secondary);
+  background: var(--surface);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
@@ -122,7 +139,7 @@ html, body {
   display: flex;
   gap: 8px;
   padding: 10px 12px;
-  background: var(--tg-secondary);
+  background: var(--surface);
   border-bottom: 1px solid var(--border);
 }
 #queryInput {
@@ -130,11 +147,13 @@ html, body {
   padding: 10px 14px;
   border-radius: var(--radius);
   border: 1.5px solid var(--border);
-  background: var(--tg-bg);
+  background-color: var(--input-bg);
   color: var(--tg-text);
   font-size: 15px;
   outline: none;
   transition: border-color .15s;
+  -webkit-appearance: none;
+  appearance: none;
 }
 #queryInput:focus { border-color: var(--accent); }
 #queryInput::placeholder { color: var(--muted); }
@@ -161,7 +180,7 @@ html, body {
   flex-direction: column;
   gap: 8px;
   padding: 8px 12px 10px;
-  background: var(--tg-secondary);
+  background: var(--surface);
   border-bottom: 1px solid var(--border);
   max-height: 38vh;
   transition: max-height .25s ease, padding .25s ease;
@@ -206,7 +225,7 @@ html, body {
   padding: 4px 10px;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: var(--tg-bg);
+  background-color: var(--input-bg);
   color: var(--tg-text);
   font-size: 11px;
   font-weight: 600;
@@ -244,7 +263,7 @@ html, body {
 }
 .chat-msg.ai {
   align-self: flex-start;
-  background: var(--card);
+  background: var(--msg-ai-bg);
   color: var(--tg-text);
   border: 1px solid var(--border);
   border-bottom-left-radius: 4px;
@@ -326,7 +345,7 @@ html, body {
   padding: 9px 13px;
   border-radius: var(--radius);
   border: 1.5px solid var(--border);
-  background: var(--tg-bg);
+  background-color: var(--input-bg);
   color: var(--tg-text);
   font-size: 14px;
   outline: none;
@@ -334,6 +353,8 @@ html, body {
   transition: border-color .15s;
   min-height: 38px;
   max-height: 80px;
+  -webkit-appearance: none;
+  appearance: none;
 }
 #chatInput:focus { border-color: var(--accent); }
 #chatInput::placeholder { color: var(--muted); }
@@ -379,7 +400,7 @@ html, body {
   border-color: rgba(201, 166, 107,0.35);
 }
 #continueInterviewBtn {
-  background: var(--card);
+  background-color: var(--input-bg);
   color: var(--tg-text);
 }
 
@@ -389,7 +410,7 @@ html, body {
   padding: 5px 14px;
   font-size: 11.5px;
   color: var(--tg-hint);
-  background: var(--tg-bg);
+  background: var(--surface);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
