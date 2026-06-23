@@ -11,28 +11,28 @@
 :root {
   --tg-bg:       var(--tg-theme-bg-color,          #000000);
   --tg-text:     var(--tg-theme-text-color,         #FFF9E3);
-  --tg-btn:      var(--tg-theme-button-color,       #E8C547);
+  --tg-btn:      var(--tg-theme-button-color,       #C9A66B);
   --tg-btn-text: var(--tg-theme-button-text-color,  #1a1408);
   --tg-hint:     var(--tg-theme-hint-color,         #9a8f6e);
   --tg-secondary:var(--tg-theme-secondary-bg-color, #0a0a0a);
-  --tg-link:     var(--tg-theme-link-color,         #FFD700);
+  --tg-link:     var(--tg-theme-link-color,         #D4A574);
   --card:        #121212;
-  --border:      rgba(255, 215, 0, 0.12);
+  --border:      rgba(201, 166, 107, 0.14);
   --radius:      14px;
-  --accent:      #E8C547;
-  --accent2:     #FFF4C2;
+  --accent:      #C9A66B;
+  --accent2:     #F0E0C8;
   --danger:      #c45c5c;
   --success:     #5c9a72;
-  --warn:        #FFD700;
+  --warn:        #D4A574;
   --muted:       #6b6350;
-  --lux-gold:    #FFD700;
-  --lux-gold-dark:#B8860B;
-  --lux-gold-dim:rgba(255, 215, 0, 0.22);
-  --lux-gold-glow:rgba(255, 215, 0, 0.35);
+  --lux-gold:    #D4A574;
+  --lux-gold-dark:#9A7B4F;
+  --lux-gold-dim:rgba(201, 166, 107, 0.22);
+  --lux-gold-glow:rgba(201, 166, 107, 0.32);
   --lux-ink:     #000000;
   --lux-pearl:   #FFF9E3;
-  --gold-gradient: linear-gradient(135deg, #FFF9E3 0%, #FFD700 32%, #E8C547 58%, #B8860B 100%);
-  --gold-gradient-btn: linear-gradient(180deg, #FFE566 0%, #E8C547 45%, #A67C00 100%);
+  --gold-gradient: linear-gradient(135deg, #F5E6D3 0%, #D4A574 38%, #C9A66B 62%, #9A7B4F 100%);
+  --gold-gradient-btn: linear-gradient(180deg, #E8C9A0 0%, #C9A66B 48%, #8B6914 100%);
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body {
@@ -78,13 +78,13 @@ html, body {
 #header-badge {
   font-size: 10px;
   font-weight: 700;
-  background: rgba(255, 215, 0, 0.1);
+  background: rgba(201, 166, 107, 0.1);
   color: var(--lux-gold);
-  border: 1px solid rgba(255, 215, 0, 0.38);
+  border: 1px solid rgba(201, 166, 107, 0.38);
   padding: 2px 7px;
   border-radius: 999px;
   letter-spacing: 0.08em;
-  text-shadow: 0 0 12px rgba(255, 215, 0, 0.25);
+  text-shadow: 0 0 12px rgba(201, 166, 107, 0.25);
 }
 
 /* ── Input bar ─────────────────────────────── */
@@ -121,7 +121,7 @@ html, body {
   cursor: pointer;
   transition: filter .15s, transform .1s, box-shadow .15s;
   white-space: nowrap;
-  box-shadow: 0 2px 16px rgba(255, 215, 0, 0.28), inset 0 1px 0 rgba(255, 249, 227, 0.45);
+  box-shadow: 0 2px 16px rgba(201, 166, 107, 0.28), inset 0 1px 0 rgba(255, 249, 227, 0.45);
 }
 #buildBtn:active { filter: brightness(0.92); transform: scale(.97); }
 
@@ -165,8 +165,8 @@ html, body {
   font-size: 10px;
   font-weight: 700;
   color: var(--lux-gold);
-  background: rgba(255, 215, 0, 0.1);
-  border: 1px solid rgba(255, 215, 0, 0.32);
+  background: rgba(201, 166, 107, 0.1);
+  border: 1px solid rgba(201, 166, 107, 0.32);
   padding: 2px 8px;
   border-radius: 999px;
   margin-left: auto;
@@ -251,16 +251,16 @@ html, body {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--lux-gold, var(--accent));
-  background: rgba(255, 215, 0,0.08);
-  border: 1px solid rgba(255, 215, 0,0.28);
+  background: rgba(201, 166, 107,0.08);
+  border: 1px solid rgba(201, 166, 107,0.28);
   border-radius: 999px;
   padding: 4px 10px;
   cursor: pointer;
   transition: background .15s, border-color .15s;
 }
 .examples-btn.open {
-  background: rgba(255, 215, 0,0.16);
-  border-color: rgba(255, 215, 0,0.45);
+  background: rgba(201, 166, 107,0.16);
+  border-color: rgba(201, 166, 107,0.45);
 }
 .examples-btn:active { transform: scale(0.97); }
 .examples-panel {
@@ -283,8 +283,8 @@ html, body {
   transition: border-color .15s, background .15s;
 }
 .example-chip:active {
-  border-color: rgba(255, 215, 0,0.45);
-  background: rgba(255, 215, 0,0.1);
+  border-color: rgba(201, 166, 107,0.45);
+  background: rgba(201, 166, 107,0.1);
 }
 
 #chat-input-row {
@@ -345,9 +345,9 @@ html, body {
 }
 #chat-choice-row button:active { transform: scale(.97); }
 #buildGraphChoiceBtn {
-  background: linear-gradient(135deg, rgba(255, 215, 0,0.22), rgba(255, 215, 0,0.08));
+  background: linear-gradient(135deg, rgba(201, 166, 107,0.22), rgba(201, 166, 107,0.08));
   color: var(--lux-gold, var(--accent));
-  border-color: rgba(255, 215, 0,0.35);
+  border-color: rgba(201, 166, 107,0.35);
 }
 #continueInterviewBtn {
   background: var(--card);
@@ -403,8 +403,8 @@ html, body {
   inset: 0;
   opacity: 0.45;
   background-image:
-    linear-gradient(rgba(255, 215, 0,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 215, 0,0.04) 1px, transparent 1px);
+    linear-gradient(rgba(201, 166, 107,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201, 166, 107,0.04) 1px, transparent 1px);
   background-size: 28px 28px;
   mask-image: radial-gradient(ellipse 85% 75% at 50% 45%, #000 20%, transparent 100%);
   pointer-events: none;
@@ -421,7 +421,7 @@ html, body {
   height: 42vmin;
   top: -8%;
   left: -6%;
-  background: rgba(255, 215, 0,0.14);
+  background: rgba(201, 166, 107,0.14);
 }
 .graph-glow-b {
   width: 36vmin;
@@ -512,7 +512,7 @@ html, body {
 .gt-btn:hover { background: rgba(255,255,255,0.06); }
 .gt-btn:active {
   transform: scale(0.94);
-  background: rgba(255, 215, 0,0.18);
+  background: rgba(201, 166, 107,0.18);
   color: var(--lux-gold);
 }
 .gt-btn-save {
@@ -559,7 +559,7 @@ html, body {
   border: 1px solid rgba(255,255,255,0.1);
   background: rgba(22,22,26,0.9);
 }
-.chip.root       { border-color: rgba(255, 215, 0,0.55); color: var(--lux-gold); }
+.chip.root       { border-color: rgba(201, 166, 107, 0.55); color: var(--lux-gold); }
 .chip.product    { border-color: rgba(92,122,110,0.5); }
 .chip.supplier   { border-color: rgba(138,115,85,0.5); }
 .chip.competitor { border-color: rgba(122,92,110,0.5); }
@@ -567,7 +567,7 @@ html, body {
 .chip.channel    { border-color: rgba(74,107,138,0.5); }
 .chip.economics  { border-color: rgba(74,122,98,0.5); }
 .chip.risk       { border-color: rgba(138,74,82,0.5); }
-.chip.category   { border-color: rgba(255, 215, 0,0.35); }
+.chip.category   { border-color: rgba(201, 166, 107, 0.35); }
 .chip.plan       { border-color: rgba(255,255,255,0.12); }
 
 /* ── Loading overlay ───────────────────────── */
@@ -623,7 +623,7 @@ html, body {
   background: rgba(18,18,20,0.96);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border-top: 1px solid rgba(255, 215, 0,0.35);
+  border-top: 1px solid rgba(201, 166, 107,0.35);
   border-radius: 22px 22px 0 0;
   padding: 0;
   box-shadow: 0 -16px 48px rgba(0,0,0,0.65);
@@ -731,15 +731,15 @@ html, body {
   transition: opacity .15s, transform .1s;
 }
 .detail-btn:active { opacity: .8; transform: scale(.98); }
-#askNodeBtn  { background: rgba(255, 215, 0, 0.14); color: var(--lux-gold); border: 1px solid rgba(255, 215, 0, 0.28); }
+#askNodeBtn  { background: rgba(201, 166, 107, 0.14); color: var(--lux-gold); border: 1px solid rgba(201, 166, 107, 0.28); }
 #askNodeBtn:disabled { opacity: .45; cursor: not-allowed; }
 #closeBtn    { background: var(--border); color: var(--tg-text); }
 .detail-tip-box {
   margin-top: 6px;
   padding: 10px 12px;
   border-radius: 12px;
-  background: rgba(255, 215, 0, 0.08);
-  border: 1px solid rgba(255, 215, 0, 0.22);
+  background: rgba(201, 166, 107, 0.08);
+  border: 1px solid rgba(201, 166, 107, 0.22);
   font-size: 13px;
   line-height: 1.45;
   color: var(--tg-text);
@@ -772,7 +772,7 @@ html, body {
   width: 100%;
   max-width: 340px;
   background: var(--card);
-  border: 1px solid rgba(255, 215, 0,0.35);
+  border: 1px solid rgba(201, 166, 107,0.35);
   border-radius: 16px;
   padding: 20px 18px;
   box-shadow: 0 20px 60px rgba(0,0,0,0.5);
@@ -812,7 +812,7 @@ html, body {
   background: var(--gold-gradient-btn);
   color: #1a1408;
   margin-bottom: 8px;
-  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.25), inset 0 1px 0 rgba(255, 249, 227, 0.4);
+  box-shadow: 0 4px 20px rgba(201, 166, 107, 0.22), inset 0 1px 0 rgba(255, 249, 227, 0.35);
 }
 #paywallSubscribeBtn:active { opacity: 0.9; transform: scale(0.98); }
 #paywallCloseBtn {
@@ -831,8 +831,8 @@ html, body {
   color: var(--lux-gold, var(--accent));
   padding: 3px 8px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 215, 0,0.3);
-  background: rgba(255, 215, 0,0.08);
+  border: 1px solid rgba(201, 166, 107, 0.3);
+  background: rgba(201, 166, 107,0.08);
 }
 </style>
 </head>
@@ -1282,26 +1282,27 @@ html, body {
   const GROUP_ICONS = {
     root:'◆', product:'◇', supplier:'◈', competitor:'◆',
     audience:'◎', channel:'▣', economics:'◉', risk:'!',
-    category:'—', plan:'·', warehouse:'▤', generic:'·'
+    category:'—', plan:'·', warehouse:'▤', clarify:'↳', generic:'·'
   };
   const LUX = {
-    gold: '#FFD700',
-    goldMid: '#E8C547',
-    edgeHub: 'rgba(255, 215, 0, 0.32)',
-    edgeLeaf: 'rgba(255, 215, 0, 0.08)',
+    gold: '#D4A574',
+    goldMid: '#C9A66B',
+    edgeHub: 'rgba(201, 166, 107, 0.32)',
+    edgeLeaf: 'rgba(201, 166, 107, 0.08)',
     groups: {
-      root:      { fill: '#141008', border: '#FFD700', glow: 'rgba(255,215,0,0.35)', font: '#FFF9E3' },
-      product:   { fill: '#12100c', border: '#C9A227', glow: 'rgba(232,197,71,0.22)', font: '#FFF4E0' },
-      supplier:  { fill: '#12100e', border: '#B8860B', glow: 'rgba(184,134,11,0.24)', font: '#FFF0D8' },
-      competitor:{ fill: '#120e10', border: '#D4AF37', glow: 'rgba(212,175,55,0.2)', font: '#FFF4E8' },
-      audience:  { fill: '#100f12', border: '#C9A962', glow: 'rgba(255, 215, 0,0.2)', font: '#FFF8EE' },
-      channel:   { fill: '#0e1012', border: '#A67C00', glow: 'rgba(166,124,0,0.22)', font: '#FFF6E8' },
+      root:      { fill: '#141008', border: '#D4A574', glow: 'rgba(201,166,107,0.35)', font: '#FFF9E3' },
+      product:   { fill: '#12100c', border: '#C9A66B', glow: 'rgba(201,166,107,0.22)', font: '#FFF4E0' },
+      supplier:  { fill: '#12100e', border: '#B8956A', glow: 'rgba(184,149,106,0.24)', font: '#FFF0D8' },
+      competitor:{ fill: '#120e10', border: '#C9A66B', glow: 'rgba(201,166,107,0.2)', font: '#FFF4E8' },
+      audience:  { fill: '#100f12', border: '#D4A574', glow: 'rgba(201,166,107,0.2)', font: '#FFF8EE' },
+      channel:   { fill: '#0e1012', border: '#9A7B4F', glow: 'rgba(154,123,79,0.22)', font: '#FFF6E8' },
       economics: { fill: '#0e120e', border: '#8B9A46', glow: 'rgba(139,154,70,0.2)', font: '#F2F8E8' },
       risk:      { fill: '#140e0e', border: '#B85C5C', glow: 'rgba(184,92,92,0.2)', font: '#FFF0F0' },
-      category:  { fill: '#0e0e0e', border: 'rgba(255,215,0,0.5)', glow: 'rgba(255,215,0,0.16)', font: '#FFD700' },
-      plan:      { fill: '#101014', border: 'rgba(255,215,0,0.22)', glow: 'rgba(0,0,0,0.2)', font: '#C9B896' },
-      warehouse: { fill: '#0e1012', border: '#A67C00', glow: 'rgba(166,124,0,0.18)', font: '#FFF6E8' },
-      generic:   { fill: '#121212', border: 'rgba(255,215,0,0.15)', glow: 'rgba(0,0,0,0.25)', font: '#FFF9E3' },
+      category:  { fill: '#0e0e0e', border: 'rgba(201,166,107,0.5)', glow: 'rgba(201,166,107,0.16)', font: '#D4A574' },
+      plan:      { fill: '#101014', border: 'rgba(201,166,107,0.22)', glow: 'rgba(0,0,0,0.2)', font: '#C9B896' },
+      clarify:   { fill: '#141210', border: '#E8C9A0', glow: 'rgba(232,201,160,0.28)', font: '#FFF8EE' },
+      warehouse: { fill: '#0e1012', border: '#9A7B4F', glow: 'rgba(154,123,79,0.18)', font: '#FFF6E8' },
+      generic:   { fill: '#121212', border: 'rgba(201,166,107,0.15)', glow: 'rgba(0,0,0,0.25)', font: '#FFF9E3' },
     }
   };
 
@@ -1366,7 +1367,7 @@ html, body {
           color: {
             color: LUX.edgeLeaf,
             highlight: LUX.gold,
-            hover: 'rgba(255, 215, 0, 0.55)',
+            hover: 'rgba(201, 166, 107, 0.55)',
             opacity: 0.85
           },
           smooth: {
@@ -1547,7 +1548,7 @@ html, body {
         color: {
           color: isTrunk ? LUX.edgeHub : LUX.edgeLeaf,
           highlight: LUX.gold,
-          hover: 'rgba(255, 215, 0, 0.5)',
+          hover: 'rgba(201, 166, 107, 0.5)',
           opacity: isTrunk ? 0.9 : 0.65
         },
         smooth: {
@@ -1695,7 +1696,8 @@ html, body {
   function groupName(g) {
     const map = { root:'Проект', product:'Товар', supplier:'Поставщик',
       competitor:'Конкурент', audience:'Аудитория', channel:'Канал',
-      economics:'Экономика', risk:'Риск', category:'Раздел', plan:'План', warehouse:'Логистика' };
+      economics:'Экономика', risk:'Риск', category:'Раздел', plan:'План',
+      warehouse:'Логистика', clarify:'Уточнение' };
     return map[g] || g;
   }
 
@@ -1796,7 +1798,7 @@ html, body {
         if (url) {
           const copyIdx = detailCopyUrls.length;
           detailCopyUrls.push(url);
-          copyBtn = `<button type="button" class="detail-btn copy-src-btn" data-copy-idx="${copyIdx}" style="width:auto;padding:8px 10px;font-size:12px;background:rgba(255,215,0,0.12);color:var(--lux-gold);border:1px solid rgba(255,215,0,0.28);border-radius:10px;">Копировать</button>`;
+          copyBtn = `<button type="button" class="detail-btn copy-src-btn" data-copy-idx="${copyIdx}" style="width:auto;padding:8px 10px;font-size:12px;background:rgba(201,166,107,0.12);color:var(--lux-gold);border:1px solid rgba(201,166,107,0.28);border-radius:10px;">Копировать</button>`;
         }
         html += `<div class="detail-source-card">
           <div style="display:flex;gap:8px;align-items:flex-start;">
@@ -1890,13 +1892,15 @@ html, body {
     }
   }
 
-  async function sendMsgText(msg) {
+  async function sendMsgText(msg, nodeId) {
     if (isApiBusy()) return;
     if (!msg || !chatSessionId) return;
     setApiBusy(true, 'Готовлю ответ…');
     setStatus('AI думает…', 'busy');
     try {
-      const data = await apiPost(CHAT_MSG_URL, apiBody({ session_id: chatSessionId, message: msg }));
+      const payload = { session_id: chatSessionId, message: msg };
+      if (nodeId != null) payload.node_id = nodeId;
+      const data = await apiPost(CHAT_MSG_URL, apiBody(payload));
       appendMsg('ai', data.assistant_message, {
         examples: data.is_completed ? [] : (data.answer_examples || []),
       });
@@ -1928,7 +1932,7 @@ html, body {
     closeDetails();
     expandChatPanel();
     appendMsg('user', question);
-    await sendMsgText(question);
+    await sendMsgText(question, meta.id);
   }
 
   // ── API helpers ───────────────────────────────────────────────────────
