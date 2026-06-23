@@ -8,22 +8,27 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root {
-  --tg-bg:       var(--tg-theme-bg-color,          #0f172a);
-  --tg-text:     var(--tg-theme-text-color,         #f1f5f9);
-  --tg-btn:      var(--tg-theme-button-color,       #6366f1);
-  --tg-btn-text: var(--tg-theme-button-text-color,  #ffffff);
-  --tg-hint:     var(--tg-theme-hint-color,         #94a3b8);
-  --tg-secondary:var(--tg-theme-secondary-bg-color, #1e293b);
-  --tg-link:     var(--tg-theme-link-color,         #818cf8);
-  --card:        #1e293b;
-  --border:      #334155;
+  --tg-bg:       var(--tg-theme-bg-color,          #0a0a0c);
+  --tg-text:     var(--tg-theme-text-color,         #f4f2ef);
+  --tg-btn:      var(--tg-theme-button-color,       #c9a962);
+  --tg-btn-text: var(--tg-theme-button-text-color,  #0c0c0e);
+  --tg-hint:     var(--tg-theme-hint-color,         #8a8780);
+  --tg-secondary:var(--tg-theme-secondary-bg-color, #121214);
+  --tg-link:     var(--tg-theme-link-color,         #d4bc7a);
+  --card:        #16161a;
+  --border:      rgba(255,255,255,0.08);
   --radius:      14px;
-  --accent:      #6366f1;
-  --accent2:     #818cf8;
-  --danger:      #ef4444;
-  --success:     #22c55e;
-  --warn:        #f59e0b;
-  --muted:       #475569;
+  --accent:      #c9a962;
+  --accent2:     #e8dcc0;
+  --danger:      #c45c5c;
+  --success:     #5c9a72;
+  --warn:        #c9a962;
+  --muted:       #5c5a56;
+  --lux-gold:    #c9a962;
+  --lux-gold-dim:rgba(201,169,98,0.28);
+  --lux-ink:     #0c0c0e;
+  --lux-graphite:#16161a;
+  --lux-pearl:   #f4f2ef;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body {
@@ -69,11 +74,12 @@ html, body {
 #header-badge {
   font-size: 10px;
   font-weight: 700;
-  background: var(--accent);
-  color: #fff;
+  background: rgba(201,169,98,0.15);
+  color: var(--lux-gold);
+  border: 1px solid rgba(201,169,98,0.35);
   padding: 2px 7px;
   border-radius: 999px;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
 }
 
 /* ── Input bar ─────────────────────────────── */
@@ -103,15 +109,16 @@ html, body {
   padding: 10px 18px;
   border: none;
   border-radius: var(--radius);
-  background: var(--accent);
-  color: #fff;
+  background: linear-gradient(180deg, #d4bc7a 0%, #b8944f 100%);
+  color: #0c0c0e;
   font-weight: 700;
   font-size: 15px;
   cursor: pointer;
-  transition: background .15s, transform .1s;
+  transition: filter .15s, transform .1s;
   white-space: nowrap;
+  box-shadow: 0 2px 12px rgba(201,169,98,0.25);
 }
-#buildBtn:active { background: #4f46e5; transform: scale(.97); }
+#buildBtn:active { filter: brightness(0.92); transform: scale(.97); }
 
 /* ── Chat panel ────────────────────────────── */
 #chat-panel {
@@ -282,46 +289,144 @@ html, body {
   50%      { opacity: .4; }
 }
 
-/* ── Graph area ────────────────────────────── */
+/* ── Graph area (luxury) ───────────────────── */
 #graph-container {
   flex: 1 1 0;
   position: relative;
-  background: #0b1220;
+  background: var(--lux-ink);
   min-height: 0;
+  max-height: 100%;
+  overflow: hidden;
+  contain: strict;
+}
+.graph-stage {
+  position: absolute;
+  inset: 0;
   overflow: hidden;
 }
+.graph-grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.45;
+  background-image:
+    linear-gradient(rgba(201,169,98,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,169,98,0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(ellipse 85% 75% at 50% 45%, #000 20%, transparent 100%);
+  pointer-events: none;
+}
+.graph-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(64px);
+  pointer-events: none;
+  opacity: 0.55;
+}
+.graph-glow-a {
+  width: 42vmin;
+  height: 42vmin;
+  top: -8%;
+  left: -6%;
+  background: rgba(201,169,98,0.14);
+}
+.graph-glow-b {
+  width: 36vmin;
+  height: 36vmin;
+  right: -8%;
+  bottom: 6%;
+  background: rgba(92,122,110,0.12);
+}
+.graph-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 90% 80% at 50% 50%, transparent 35%, rgba(0,0,0,0.55) 100%),
+    linear-gradient(180deg, rgba(12,12,14,0.35) 0%, transparent 18%, transparent 82%, rgba(12,12,14,0.5) 100%);
+}
 #mynetwork {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(ellipse at 30% 20%, #1a2744 0%, #0b1220 55%, #070b14 100%);
+  touch-action: none;
+  background: transparent;
+  z-index: 1;
+}
+.graph-legend {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  z-index: 8;
+  display: none;
+  flex-wrap: wrap;
+  gap: 6px;
+  pointer-events: none;
+}
+.graph-legend.visible { display: flex; }
+.legend-chip {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--lux-pearl);
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--lc, var(--lux-gold-dim));
+  background: rgba(12,12,14,0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.35);
 }
 #graph-tools {
   position: absolute;
-  right: 10px;
-  bottom: 12px;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  flex-direction: row;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(18,18,20,0.78);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow:
+    0 8px 32px rgba(0,0,0,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.06);
   z-index: 12;
 }
 .gt-btn {
-  width: 38px;
-  height: 38px;
-  border-radius: 11px;
-  border: 1px solid var(--border);
-  background: rgba(15,23,42,.82);
-  backdrop-filter: blur(6px);
-  color: var(--tg-text);
-  font-size: 20px;
-  font-weight: 700;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: var(--lux-pearl);
+  font-size: 18px;
+  font-weight: 300;
   line-height: 1;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background .15s, transform .1s;
+  transition: background .2s ease, color .2s ease, transform .12s ease;
 }
-.gt-btn:active { transform: scale(.92); background: var(--accent); }
+.gt-btn:hover { background: rgba(255,255,255,0.06); }
+.gt-btn:active {
+  transform: scale(0.94);
+  background: rgba(201,169,98,0.18);
+  color: var(--lux-gold);
+}
+.gt-divider {
+  width: 1px;
+  height: 22px;
+  background: rgba(255,255,255,0.08);
+  margin: 0 2px;
+}
 
 /* ── Fallback list ─────────────────────────── */
 #fallback-list {
@@ -336,23 +441,26 @@ html, body {
 #fallback-list h3 { font-size: 14px; color: var(--tg-hint); margin-bottom: 10px; }
 .chip {
   display: inline-block;
-  margin: 3px 5px 3px 0;
-  padding: 4px 10px;
+  margin: 4px 6px 4px 0;
+  padding: 6px 12px;
   border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #111;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--lux-pearl);
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(22,22,26,0.9);
 }
-.chip.root       { background: #fca5a5; }
-.chip.product    { background: #86efac; }
-.chip.supplier   { background: #fde68a; }
-.chip.competitor { background: #f0abfc; }
-.chip.audience   { background: #c4b5fd; }
-.chip.channel    { background: #93c5fd; }
-.chip.economics  { background: #6ee7b7; }
-.chip.risk       { background: #fca5a5; }
-.chip.category   { background: #cbd5e1; }
-.chip.plan       { background: #a5f3fc; }
+.chip.root       { border-color: rgba(201,169,98,0.55); color: var(--lux-gold); }
+.chip.product    { border-color: rgba(92,122,110,0.5); }
+.chip.supplier   { border-color: rgba(138,115,85,0.5); }
+.chip.competitor { border-color: rgba(122,92,110,0.5); }
+.chip.audience   { border-color: rgba(107,101,137,0.5); }
+.chip.channel    { border-color: rgba(74,107,138,0.5); }
+.chip.economics  { border-color: rgba(74,122,98,0.5); }
+.chip.risk       { border-color: rgba(138,74,82,0.5); }
+.chip.category   { border-color: rgba(201,169,98,0.35); }
+.chip.plan       { border-color: rgba(255,255,255,0.12); }
 
 /* ── Loading overlay ───────────────────────── */
 #loading-overlay {
@@ -362,19 +470,19 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  background: rgba(15,23,42,.82);
-  backdrop-filter: blur(4px);
+  gap: 16px;
+  background: rgba(12,12,14,0.88);
+  backdrop-filter: blur(12px);
   z-index: 30;
 }
 #loading-overlay.visible { display: flex; }
 .spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--border);
-  border-top-color: var(--accent);
+  width: 36px;
+  height: 36px;
+  border: 2px solid rgba(255,255,255,0.08);
+  border-top-color: var(--lux-gold);
   border-radius: 50%;
-  animation: spin .7s linear infinite;
+  animation: spin .85s cubic-bezier(.4,0,.2,1) infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 #loading-text {
@@ -390,13 +498,15 @@ html, body {
   max-height: 82%;
   display: flex;
   flex-direction: column;
-  background: var(--card);
-  border-top: 2px solid var(--accent);
-  border-radius: 20px 20px 0 0;
+  background: rgba(18,18,20,0.96);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid rgba(201,169,98,0.35);
+  border-radius: 22px 22px 0 0;
   padding: 0;
-  box-shadow: 0 -10px 40px rgba(0,0,0,.55);
+  box-shadow: 0 -16px 48px rgba(0,0,0,0.65);
   transform: translateY(105%);
-  transition: transform .28s cubic-bezier(.4,0,.2,1);
+  transition: transform .32s cubic-bezier(.32,.72,.24,1);
   z-index: 20;
   color: var(--tg-text);
 }
@@ -432,12 +542,14 @@ html, body {
   flex: 1;
 }
 #detail-group-badge {
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 8px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
   border-radius: 999px;
-  background: var(--accent);
-  color: #fff;
+  background: transparent;
+  color: var(--lux-gold);
   white-space: nowrap;
   margin-top: 3px;
 }
@@ -561,11 +673,20 @@ html, body {
 
   <!-- Graph -->
   <div id="graph-container">
-    <div id="mynetwork"></div>
+    <div class="graph-stage">
+      <div class="graph-grid" aria-hidden="true"></div>
+      <div class="graph-glow graph-glow-a" aria-hidden="true"></div>
+      <div class="graph-glow graph-glow-b" aria-hidden="true"></div>
+      <div id="mynetwork"></div>
+      <div class="graph-vignette" aria-hidden="true"></div>
+      <div id="graph-legend" class="graph-legend" aria-hidden="true"></div>
+    </div>
     <div id="graph-tools">
-      <button id="gtZoomIn" class="gt-btn" type="button" title="Приблизить">+</button>
-      <button id="gtZoomOut" class="gt-btn" type="button" title="Отдалить">−</button>
-      <button id="gtFit" class="gt-btn" type="button" title="Показать весь граф">⤢</button>
+      <button id="gtZoomOut" class="gt-btn" type="button" title="Отдалить" aria-label="Отдалить">−</button>
+      <span class="gt-divider" aria-hidden="true"></span>
+      <button id="gtFit" class="gt-btn" type="button" title="Вписать в экран" aria-label="Вписать">◎</button>
+      <span class="gt-divider" aria-hidden="true"></span>
+      <button id="gtZoomIn" class="gt-btn" type="button" title="Приблизить" aria-label="Приблизить">+</button>
     </div>
     <div id="fallback-list"></div>
 
@@ -603,6 +724,8 @@ html, body {
   const tg = window.Telegram?.WebApp;
 
   let network = null, nodes = null, edges = null, visReady = false;
+  const GRAPH_ZOOM_MIN = 0.35;
+  const GRAPH_ZOOM_MAX = 1.65;
   let chatSessionId = null, selectedNode = null, chatCompleted = false;
   let freeQuestionsLeft = 5, freeQuestionsLimit = 5;
   let graphNodeMeta = new Map();
@@ -665,42 +788,52 @@ html, body {
     el.style.height = Math.min(el.scrollHeight, 80) + 'px';
   }
 
-  // ── Vis init ─────────────────────────────────────────────────────────
+  // ── Vis init (luxury graph) ─────────────────────────────────────────
+  const LUX_FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif";
   const GROUP_ICONS = {
-    root:'🎯', product:'📦', supplier:'🏭', competitor:'⚔️',
-    audience:'👥', channel:'📢', economics:'💰', risk:'⚠️',
-    category:'📁', plan:'🗂️', warehouse:'🏪', generic:'📌'
+    root:'◆', product:'◇', supplier:'◈', competitor:'◆',
+    audience:'◎', channel:'▣', economics:'◉', risk:'!',
+    category:'—', plan:'·', warehouse:'▤', generic:'·'
   };
-  const GROUP_COLORS = {
-    root:      { bg:'#dc2626', border:'#fecaca', font:'#ffffff' },
-    product:   { bg:'#15803d', border:'#bbf7d0', font:'#ffffff' },
-    supplier:  { bg:'#b45309', border:'#fde68a', font:'#ffffff' },
-    competitor:{ bg:'#be185d', border:'#fbcfe8', font:'#ffffff' },
-    audience:  { bg:'#6d28d9', border:'#ddd6fe', font:'#ffffff' },
-    channel:   { bg:'#0369a1', border:'#bae6fd', font:'#ffffff' },
-    economics: { bg:'#047857', border:'#a7f3d0', font:'#ffffff' },
-    risk:      { bg:'#991b1b', border:'#fecaca', font:'#ffffff' },
-    category:  { bg:'#1e293b', border:'#94a3b8', font:'#f1f5f9' },
-    plan:      { bg:'#0e7490', border:'#a5f3fc', font:'#ffffff' },
-    warehouse: { bg:'#1d4ed8', border:'#bfdbfe', font:'#ffffff' },
+  const LUX = {
+    gold: '#C9A962',
+    edgeHub: 'rgba(201,169,98,0.28)',
+    edgeLeaf: 'rgba(255,255,255,0.1)',
+    groups: {
+      root:      { fill: '#1A1812', border: '#C9A962', glow: 'rgba(201,169,98,0.32)', font: '#F5F0E8' },
+      product:   { fill: '#141816', border: '#5C7A6E', glow: 'rgba(92,122,110,0.22)', font: '#E6EDE9' },
+      supplier:  { fill: '#181614', border: '#8A7355', glow: 'rgba(138,115,85,0.2)', font: '#EDE8E0' },
+      competitor:{ fill: '#181416', border: '#7A5C6E', glow: 'rgba(122,92,110,0.2)', font: '#EDE6EA' },
+      audience:  { fill: '#141418', border: '#6B6589', glow: 'rgba(107,101,137,0.2)', font: '#E8E6F0' },
+      channel:   { fill: '#12161A', border: '#4A6B8A', glow: 'rgba(74,107,138,0.2)', font: '#E4ECF4' },
+      economics: { fill: '#121816', border: '#4A7A62', glow: 'rgba(74,122,98,0.22)', font: '#E2F0E8' },
+      risk:      { fill: '#1A1214', border: '#8A4A52', glow: 'rgba(138,74,82,0.22)', font: '#F0E4E6' },
+      category:  { fill: '#101012', border: 'rgba(201,169,98,0.45)', glow: 'rgba(201,169,98,0.14)', font: '#C9A962' },
+      plan:      { fill: '#141418', border: 'rgba(232,230,227,0.18)', glow: 'rgba(0,0,0,0.2)', font: '#B8B4AC' },
+      warehouse: { fill: '#12161A', border: '#4A6B8A', glow: 'rgba(74,107,138,0.18)', font: '#E4ECF4' },
+      generic:   { fill: '#16161A', border: 'rgba(255,255,255,0.12)', glow: 'rgba(0,0,0,0.25)', font: '#E8E6E3' },
+    }
   };
+
+  function luxStyle(group) {
+    return LUX.groups[group] || LUX.groups.generic;
+  }
 
   function makeGroups() {
     const g = {};
-    for (const [key, c] of Object.entries(GROUP_COLORS)) {
+    for (const [key, style] of Object.entries(LUX.groups)) {
       g[key] = {
         color: {
-          background: c.bg,
-          border: c.border,
-          highlight: { background: c.bg, border: '#ffffff' }
+          background: style.fill,
+          border: style.border,
+          highlight: { background: style.fill, border: LUX.gold },
+          hover: { background: style.fill, border: LUX.gold }
         },
-        shape: key === 'root' ? 'ellipse' : key === 'risk' ? 'diamond' : 'box',
-        borderWidth: key === 'category' ? 2 : 2.5,
+        borderWidth: key === 'root' ? 2 : 1.5,
         font: {
-          color: c.font || '#fff',
-          size: key === 'root' ? 13 : 11,
-          bold: { color: c.font || '#fff' },
-          face: 'system-ui,sans-serif'
+          color: style.font,
+          face: LUX_FONT,
+          multi: false
         }
       };
     }
@@ -720,20 +853,38 @@ html, body {
       {
         nodes: {
           shape: 'box',
-          margin: { top: 11, right: 14, bottom: 11, left: 14 },
-          widthConstraint: { minimum: 80, maximum: 175 },
-          heightConstraint: { minimum: 40, valign: 'middle' },
-          font: { size: 13, color: '#f8fafc', multi: false, face: 'system-ui,sans-serif', vadjust: 0 },
-          borderWidth: 2.5,
-          shapeProperties: { borderRadius: 10 },
-          shadow: { enabled: true, size: 8, x: 0, y: 3, color: 'rgba(0,0,0,.5)' }
+          margin: { top: 10, right: 14, bottom: 10, left: 14 },
+          widthConstraint: { minimum: 72, maximum: 168 },
+          heightConstraint: { minimum: 36, valign: 'middle' },
+          font: { size: 11, color: '#F4F2EF', face: LUX_FONT, vadjust: 0 },
+          borderWidth: 1.5,
+          borderWidthSelected: 2,
+          shapeProperties: { borderRadius: 14 },
+          shadow: {
+            enabled: true,
+            size: 10,
+            x: 0,
+            y: 3,
+            color: 'rgba(0,0,0,0.45)'
+          }
         },
         edges: {
-          width: 1.8,
-          selectionWidth: 2,
-          arrows: { to: { enabled: true, scaleFactor: .55, type: 'arrow' } },
-          color: { color: '#5b6b86', highlight: '#a5b4fc', hover: '#c7d2fe', opacity: 0.9 },
-          smooth: { type: 'cubicBezier', forceDirection: 'horizontal', roundness: 0.45 },
+          width: 1,
+          selectionWidth: 1.5,
+          hoverWidth: 1.25,
+          arrows: { to: { enabled: true, scaleFactor: 0.42, type: 'arrow' } },
+          color: {
+            color: LUX.edgeLeaf,
+            highlight: LUX.gold,
+            hover: 'rgba(201,169,98,0.55)',
+            opacity: 0.85
+          },
+          smooth: {
+            enabled: true,
+            type: 'cubicBezier',
+            forceDirection: 'horizontal',
+            roundness: 0.38
+          },
           font: { size: 0 }
         },
         groups: makeGroups(),
@@ -744,9 +895,9 @@ html, body {
             direction: 'LR',
             sortMethod: 'directed',
             shakeTowards: 'roots',
-            levelSeparation: 210,
-            nodeSpacing: 130,
-            treeSpacing: 170,
+            levelSeparation: 168,
+            nodeSpacing: 68,
+            treeSpacing: 88,
             blockShifting: true,
             edgeMinimization: true,
             parentCentralization: true
@@ -757,10 +908,14 @@ html, body {
           dragView: true,
           zoomView: true,
           hover: true,
-          tooltipDelay: 200,
+          tooltipDelay: 120,
+          hideEdgesOnDrag: false,
           navigationButtons: false,
-          keyboard: false
-        }
+          keyboard: false,
+          zoomSpeed: 0.55,
+          multiselect: false
+        },
+        configure: { enabled: false }
       }
     );
 
@@ -771,7 +926,17 @@ html, body {
       if (nd) showDetails(nd);
     });
     network.on('dragStart', collapseChatForGraph);
-    network.on('zoom', collapseChatForGraph);
+    network.on('zoom', () => {
+      collapseChatForGraph();
+      clampGraphZoom();
+    });
+    network.on('dragEnd', () => { softClampGraphPan(); });
+    network.on('hoverNode', () => {
+      document.getElementById('mynetwork').style.cursor = 'pointer';
+    });
+    network.on('blurNode', () => {
+      document.getElementById('mynetwork').style.cursor = 'default';
+    });
 
     visReady = true;
     return true;
@@ -798,22 +963,184 @@ html, body {
 
   function nodeForVis(node) {
     const label = String(node.label || '');
-    const isProgressRoot = node.group === 'root' && /^Опрос\s+\d/.test(label);
+    const isProgressRoot = node.group === 'root' && /^Опрос/.test(label);
     const isSectionHeader =
       node.group === 'category' ||
       Object.values(GROUP_LABELS).includes(label) ||
       label === 'Ваши ответы';
     const keepFull = isProgressRoot || isSectionHeader;
-    return { ...node, label: keepFull ? node.label : shortenLabel(node.label) };
+    return { ...node, label: keepFull ? node.label : shortenLabel(node.label, 38) };
+  }
+
+  function enrichNodesForLuxury(rawNodes) {
+    return rawNodes.map((node) => {
+      const g = node.group || 'generic';
+      const style = luxStyle(g);
+      const base = { ...node };
+      const isHub = g === 'category' && node.id >= 9e5;
+      const isRoot = g === 'root';
+      const isPlan = g === 'plan' || node.label === 'Ваши ответы';
+
+      base.color = {
+        background: style.fill,
+        border: style.border,
+        highlight: { background: style.fill, border: LUX.gold },
+        hover: { background: style.fill, border: LUX.gold }
+      };
+      base.shadow = {
+        enabled: true,
+        size: isRoot ? 22 : (isHub ? 10 : 7),
+        x: 0,
+        y: isRoot ? 5 : 2,
+        color: style.glow
+      };
+      base.font = {
+        face: LUX_FONT,
+        color: style.font,
+        multi: false,
+        vadjust: 0
+      };
+
+      if (isRoot) {
+        base.shape = 'ellipse';
+        base.size = 36;
+        base.borderWidth = 2;
+        base.font.size = 12;
+        base.font.bold = true;
+      } else if (isHub) {
+        base.shape = 'box';
+        base.label = String(base.label).toUpperCase();
+        base.borderWidth = 1.5;
+        base.widthConstraint = { minimum: 76, maximum: 120 };
+        base.heightConstraint = { minimum: 30, valign: 'middle' };
+        base.font.size = 9;
+        base.font.bold = true;
+        base.shapeProperties = { borderRadius: 18 };
+      } else if (isPlan) {
+        base.shape = 'box';
+        base.borderWidth = 1;
+        base.widthConstraint = { minimum: 64, maximum: 148 };
+        base.font.size = 10;
+        base.shapeProperties = { borderRadius: 12 };
+      } else if (g === 'risk') {
+        base.shape = 'diamond';
+        base.size = 22;
+        base.borderWidth = 1.5;
+        base.font.size = 10;
+      } else if (g === 'economics') {
+        base.shape = 'box';
+        base.borderWidth = 1.5;
+        base.widthConstraint = { minimum: 80, maximum: 156 };
+        base.font.size = 10;
+        base.shapeProperties = { borderRadius: 14 };
+      } else {
+        base.shape = 'box';
+        base.borderWidth = 1.5;
+        base.widthConstraint = { minimum: 68, maximum: 152 };
+        base.heightConstraint = { minimum: 34, valign: 'middle' };
+        base.font.size = 11;
+        base.shapeProperties = { borderRadius: 14 };
+      }
+      return base;
+    });
+  }
+
+  function enrichEdgesForLuxury(rawEdges, hubIds, rootId) {
+    const hubs = hubIds || new Set();
+    return rawEdges.map((edge) => {
+      const touchesHub = hubs.has(edge.from) || hubs.has(edge.to);
+      const touchesRoot = edge.from === rootId || edge.to === rootId;
+      const isTrunk = touchesHub || touchesRoot;
+      return {
+        ...edge,
+        width: isTrunk ? 1.15 : 0.85,
+        color: {
+          color: isTrunk ? LUX.edgeHub : LUX.edgeLeaf,
+          highlight: LUX.gold,
+          hover: 'rgba(201,169,98,0.5)',
+          opacity: isTrunk ? 0.9 : 0.65
+        },
+        smooth: {
+          enabled: true,
+          type: 'cubicBezier',
+          forceDirection: 'horizontal',
+          roundness: isTrunk ? 0.32 : 0.42
+        }
+      };
+    });
+  }
+
+  function updateGraphLegend(nodeList) {
+    const el = document.getElementById('graph-legend');
+    if (!el) return;
+    const chips = [];
+    const seen = new Set();
+    for (const n of nodeList) {
+      if (n.group !== 'category' || n.id < 9e5) continue;
+      const label = String(n.label || '').trim();
+      if (!label || seen.has(label)) continue;
+      seen.add(label);
+      const key = Object.entries(GROUP_LABELS).find(([, v]) => v.toUpperCase() === label)?.[0] || 'category';
+      const style = luxStyle(key);
+      chips.push(
+        `<span class="legend-chip" style="--lc:${style.border}">${escHtml(label)}</span>`
+      );
+    }
+    el.innerHTML = chips.join('');
+    el.classList.toggle('visible', chips.length > 0);
+    el.setAttribute('aria-hidden', chips.length ? 'false' : 'true');
+  }
+
+  function clampGraphZoom() {
+    if (!network) return;
+    const scale = network.getScale();
+    if (scale < GRAPH_ZOOM_MIN) network.moveTo({ scale: GRAPH_ZOOM_MIN, animation: false });
+    else if (scale > GRAPH_ZOOM_MAX) network.moveTo({ scale: GRAPH_ZOOM_MAX, animation: false });
+  }
+
+  function fitGraphToView(animate = true) {
+    if (!network || !nodes) return;
+    const ids = nodes.getIds();
+    if (!ids.length) return;
+    network.fit({
+      nodes: ids,
+      animation: animate ? { duration: 420, easingFunction: 'easeInOutQuad' } : false,
+      minZoomLevel: GRAPH_ZOOM_MIN,
+      maxZoomLevel: GRAPH_ZOOM_MAX,
+    });
+  }
+
+  function softClampGraphPan() {
+    if (!network || !nodes) return;
+    const ids = nodes.getIds();
+    if (!ids.length) return;
+    const box = network.getBoundingBox(ids);
+    if (!box) return;
+    const canvas = network.getScale();
+    const view = network.getViewPosition();
+    const container = document.getElementById('mynetwork');
+    if (!container) return;
+    const w = container.clientWidth / canvas;
+    const h = container.clientHeight / canvas;
+    const pad = 120;
+    const cx = (box.left + box.right) / 2;
+    const cy = (box.top + box.bottom) / 2;
+    const tooFar =
+      box.right < view.x - w / 2 + pad ||
+      box.left > view.x + w / 2 - pad ||
+      box.bottom < view.y - h / 2 + pad ||
+      box.top > view.y + h / 2 - pad;
+    if (tooFar) fitGraphToView(true);
   }
 
   function buildTree(rawNodes) {
     const root = rawNodes.find(n => n.group === 'root') || rawNodes[0];
-    if (!root) return { nodes: [], edges: [] };
+    if (!root) return { nodes: [], edges: [], hubIds: new Set(), rootId: null };
 
     const treeNodes = [nodeForVis(root)];
     const treeEdges = [];
     const cats = new Map();
+    const hubIds = new Set();
     let cid = 9e5;
 
     for (const node of rawNodes) {
@@ -821,19 +1148,21 @@ html, body {
       if (node.group === 'category' || node.group === 'plan') {
         treeNodes.push(nodeForVis(node));
         treeEdges.push({ from: root.id, to: node.id, label: '' });
+        if (node.group === 'category') hubIds.add(node.id);
         continue;
       }
       const key = node.group || 'category';
       if (!cats.has(key)) {
         const id = cid++;
         cats.set(key, id);
+        hubIds.add(id);
         treeNodes.push({ id, label: GROUP_LABELS[key] || key, group: 'category' });
         treeEdges.push({ from: root.id, to: id, label: '' });
       }
       treeNodes.push(nodeForVis(node));
       treeEdges.push({ from: cats.get(key), to: node.id, label: '' });
     }
-    return { nodes: treeNodes, edges: treeEdges };
+    return { nodes: treeNodes, edges: treeEdges, hubIds, rootId: root.id };
   }
 
   // ── Render graph ─────────────────────────────────────────────────────
@@ -849,15 +1178,24 @@ html, body {
     for (const n of gNodes) graphNodeMeta.set(n.id, n);
     if (!visReady) { showFallback(gNodes, gEdges); return; }
     hideFallback();
-    const { nodes: tn, edges: te } = buildTree(gNodes);
-    nodes.clear(); edges.clear();
-    nodes.add(tn); edges.add(te);
-    setTimeout(() => { network.redraw(); network.fit({ animation: { duration: 450 } }); }, 100);
+    const { nodes: tn, edges: te, hubIds, rootId } = buildTree(gNodes);
+    const luxNodes = enrichNodesForLuxury(tn);
+    const luxEdges = enrichEdgesForLuxury(te, hubIds, rootId);
+    nodes.clear();
+    edges.clear();
+    nodes.add(luxNodes);
+    edges.add(luxEdges);
+    updateGraphLegend(luxNodes);
+    document.getElementById('graph-container').classList.add('graph-live');
+    setTimeout(() => {
+      network.redraw();
+      fitGraphToView(true);
+    }, 120);
   }
 
   function showFallback(gNodes, gEdges) {
     const box = document.getElementById('fallback-list');
-    box.innerHTML = '<h3>Карта ниши (текст)</h3>'
+    box.innerHTML = '<h3>Карта ниши</h3>'
       + gNodes.map(n => `<span class="chip ${n.group||''}">${escHtml(n.label)}</span>`).join('');
     box.classList.add('visible');
   }
@@ -901,10 +1239,15 @@ html, body {
 
     document.getElementById('detail-icon').textContent = nodeIcon(meta.group);
     document.getElementById('detail-title').textContent = title;
-    document.getElementById('detail-group-badge').textContent = groupName(meta.group);
 
-    const c = GROUP_COLORS[meta.group];
-    if (c) document.getElementById('detail-group-badge').style.background = c.bg;
+    const c = luxStyle(meta.group);
+    const badge = document.getElementById('detail-group-badge');
+    badge.textContent = groupName(meta.group);
+    if (c) {
+      badge.style.background = 'transparent';
+      badge.style.border = `1px solid ${c.border}`;
+      badge.style.color = c.font;
+    }
 
     if (askBtn) {
       askBtn.disabled = !chatSessionId;
@@ -1189,14 +1532,12 @@ html, body {
 
     const zoomBy = (factor) => {
       if (!network) return;
-      const s = network.getScale() * factor;
+      const s = Math.min(GRAPH_ZOOM_MAX, Math.max(GRAPH_ZOOM_MIN, network.getScale() * factor));
       network.moveTo({ scale: s, animation: { duration: 200 } });
     };
     document.getElementById('gtZoomIn').addEventListener('click', () => zoomBy(1.3));
     document.getElementById('gtZoomOut').addEventListener('click', () => zoomBy(0.77));
-    document.getElementById('gtFit').addEventListener('click', () => {
-      if (network) network.fit({ animation: { duration: 400 } });
-    });
+    document.getElementById('gtFit').addEventListener('click', () => fitGraphToView(true));
 
     const ci = document.getElementById('chatInput');
     ci.addEventListener('keydown', e => {
