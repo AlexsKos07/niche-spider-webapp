@@ -8,15 +8,24 @@
 <link href="https://cdn.jsdelivr.net/npm/vis-network@9.1.9/styles/vis-network.min.css" rel="stylesheet" />
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-:root {
-  --tg-bg:       var(--tg-theme-bg-color,          #000000);
-  --tg-text:     var(--tg-theme-text-color,         #FFF9E3);
-  --tg-btn:      var(--tg-theme-button-color,       #C9A66B);
-  --tg-btn-text: var(--tg-theme-button-text-color,  #1a1408);
-  --tg-hint:     var(--tg-theme-hint-color,         #9a8f6e);
-  --tg-secondary:var(--tg-theme-secondary-bg-color, #0a0a0a);
-  --tg-link:     var(--tg-theme-link-color,         #D4A574);
-  --card:        #121212;
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --tg-bg:       #0a0a0a;
+  --tg-text:     #f5f0e6;
+  --tg-btn:      #C9A66B;
+  --tg-btn-text: #1a1408;
+  --tg-hint:     #9a8f6e;
+  --tg-secondary:#141414;
+  --tg-link:     #D4A574;
+  --card:        #1a1a1a;
+  --graph-bg:    #0a0a0a;
+  --panel-surface: rgba(18,18,20,0.96);
+  --panel-float: rgba(18,18,20,0.78);
+  --panel-text:  #f5f0e6;
+  --chip-bg:     rgba(22,22,26,0.9);
+  --chip-text:   #f5f0e6;
+  --overlay-bg:  rgba(12,12,14,0.88);
   --border:      rgba(201, 166, 107, 0.14);
   --radius:      14px;
   --accent:      #C9A66B;
@@ -29,10 +38,30 @@
   --lux-gold-dark:#9A7B4F;
   --lux-gold-dim:rgba(201, 166, 107, 0.22);
   --lux-gold-glow:rgba(201, 166, 107, 0.32);
-  --lux-ink:     #000000;
+  --lux-ink:     #0a0a0a;
   --lux-pearl:   #FFF9E3;
   --gold-gradient: linear-gradient(135deg, #F5E6D3 0%, #D4A574 38%, #C9A66B 62%, #9A7B4F 100%);
   --gold-gradient-btn: linear-gradient(180deg, #E8C9A0 0%, #C9A66B 48%, #8B6914 100%);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --tg-bg:       #ffffff;
+  --tg-text:     #1a1408;
+  --tg-hint:     #6b5340;
+  --tg-secondary:#f5f0eb;
+  --card:        #fff8ee;
+  --graph-bg:    #ebe4d8;
+  --panel-surface: rgba(255,252,247,0.98);
+  --panel-float: rgba(255,255,255,0.94);
+  --panel-text:  #1a1408;
+  --chip-bg:     #fff8ee;
+  --chip-text:   #1a1408;
+  --overlay-bg:  rgba(245,240,235,0.92);
+  --border:      rgba(154, 123, 79, 0.28);
+  --accent2:     #6b5340;
+  --muted:       #8a7f6e;
+  --lux-pearl:   #1a1408;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body {
@@ -65,7 +94,7 @@ html, body {
 #header-title {
   font-size: 15px;
   font-weight: 700;
-  color: var(--lux-pearl);
+  color: var(--tg-text);
   flex: 1;
   letter-spacing: -0.02em;
 }
@@ -274,7 +303,7 @@ html, body {
   font-size: 11.5px;
   line-height: 1.3;
   color: var(--tg-text);
-  background: rgba(22,22,26,0.92);
+  background: var(--chip-bg);
   border: 1px solid var(--border);
   border-radius: 999px;
   padding: 5px 10px;
@@ -315,7 +344,7 @@ html, body {
   border: none;
   border-radius: 50%;
   background: var(--accent);
-  color: #fff;
+  color: #1a1408;
   font-size: 16px;
   cursor: pointer;
   display: flex;
@@ -387,7 +416,7 @@ html, body {
 #graph-container {
   flex: 1 1 0;
   position: relative;
-  background: var(--lux-ink);
+  background: var(--graph-bg);
   min-height: 0;
   max-height: 100%;
   overflow: hidden;
@@ -438,6 +467,13 @@ html, body {
     radial-gradient(ellipse 90% 80% at 50% 50%, transparent 35%, rgba(0,0,0,0.55) 100%),
     linear-gradient(180deg, rgba(12,12,14,0.35) 0%, transparent 18%, transparent 82%, rgba(12,12,14,0.5) 100%);
 }
+[data-theme="light"] .graph-vignette {
+  background:
+    radial-gradient(ellipse 90% 80% at 50% 50%, transparent 50%, rgba(0,0,0,0.06) 100%),
+    linear-gradient(180deg, rgba(255,255,255,0.35) 0%, transparent 20%, transparent 80%, rgba(255,255,255,0.25) 100%);
+  opacity: 0.7;
+}
+[data-theme="light"] .graph-glow { opacity: 0.25; }
 #mynetwork {
   position: absolute;
   inset: 0;
@@ -464,14 +500,14 @@ html, body {
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--lux-pearl);
+  color: var(--panel-text);
   padding: 5px 10px;
   border-radius: 999px;
   border: 1px solid var(--lc, var(--lux-gold-dim));
-  background: rgba(12,12,14,0.72);
+  background: var(--panel-float);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
 }
 #graph-tools {
   position: absolute;
@@ -484,13 +520,11 @@ html, body {
   gap: 2px;
   padding: 4px;
   border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: rgba(18,18,20,0.78);
+  border: 1px solid var(--border);
+  background: var(--panel-float);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  box-shadow:
-    0 8px 32px rgba(0,0,0,0.45),
-    inset 0 1px 0 rgba(255,255,255,0.06);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
   z-index: 12;
 }
 .gt-btn {
@@ -499,7 +533,7 @@ html, body {
   border-radius: 999px;
   border: none;
   background: transparent;
-  color: var(--lux-pearl);
+  color: var(--panel-text);
   font-size: 18px;
   font-weight: 300;
   line-height: 1;
@@ -532,7 +566,7 @@ html, body {
 .gt-divider {
   width: 1px;
   height: 22px;
-  background: rgba(255,255,255,0.08);
+  background: var(--border);
   margin: 0 2px;
 }
 
@@ -555,9 +589,9 @@ html, body {
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.02em;
-  color: var(--lux-pearl);
-  border: 1px solid rgba(255,255,255,0.1);
-  background: rgba(22,22,26,0.9);
+  color: var(--chip-text);
+  border: 1px solid var(--border);
+  background: var(--chip-bg);
 }
 .chip.root       { border-color: rgba(201, 166, 107, 0.55); color: var(--lux-gold); }
 .chip.product    { border-color: rgba(92,122,110,0.5); }
@@ -579,7 +613,7 @@ html, body {
   align-items: center;
   justify-content: center;
   gap: 16px;
-  background: rgba(12,12,14,0.88);
+  background: var(--overlay-bg);
   backdrop-filter: blur(12px);
   z-index: 9998;
 }
@@ -620,13 +654,13 @@ html, body {
   max-height: 82%;
   display: flex;
   flex-direction: column;
-  background: rgba(18,18,20,0.96);
+  background: var(--panel-surface);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border-top: 1px solid rgba(201, 166, 107,0.35);
+  border-top: 1px solid var(--border);
   border-radius: 22px 22px 0 0;
   padding: 0;
-  box-shadow: 0 -16px 48px rgba(0,0,0,0.65);
+  box-shadow: 0 -16px 48px rgba(0,0,0,0.18);
   transform: translateY(105%);
   transition: transform .32s cubic-bezier(.32,.72,.24,1);
   z-index: 20;
@@ -2048,6 +2082,20 @@ html, body {
     await sendMsgText(msg);
   }
 
+  function applyTheme() {
+    const light = tg?.colorScheme === 'light';
+    const theme = light ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+    if (!tg) return;
+    try {
+      const bg = light ? '#f5f0eb' : '#0a0a0a';
+      tg.setHeaderColor(bg);
+      tg.setBackgroundColor(bg);
+      if (typeof tg.setBottomBarColor === 'function') tg.setBottomBarColor(bg);
+    } catch (_) {}
+    if (network) setTimeout(() => network.redraw(), 80);
+  }
+
   // ── Boot ──────────────────────────────────────────────────────────────
   function boot() {
     layoutHeights();
@@ -2056,10 +2104,10 @@ html, body {
     if (tg) {
       tg.ready();
       tg.expand();
-      try {
-        tg.setHeaderColor('#000000');
-        tg.setBackgroundColor('#000000');
-      } catch (_) {}
+      applyTheme();
+      tg.onEvent('themeChanged', applyTheme);
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
     }
     updateLimitsUI();
     loadUsageLimits();
