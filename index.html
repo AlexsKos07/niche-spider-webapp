@@ -8,27 +8,30 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root {
-  --tg-bg:       var(--tg-theme-bg-color,          #0a0a0c);
-  --tg-text:     var(--tg-theme-text-color,         #f4f2ef);
-  --tg-btn:      var(--tg-theme-button-color,       #c9a962);
-  --tg-btn-text: var(--tg-theme-button-text-color,  #0c0c0e);
-  --tg-hint:     var(--tg-theme-hint-color,         #8a8780);
-  --tg-secondary:var(--tg-theme-secondary-bg-color, #121214);
-  --tg-link:     var(--tg-theme-link-color,         #d4bc7a);
-  --card:        #16161a;
-  --border:      rgba(255,255,255,0.08);
+  --tg-bg:       var(--tg-theme-bg-color,          #000000);
+  --tg-text:     var(--tg-theme-text-color,         #FFF9E3);
+  --tg-btn:      var(--tg-theme-button-color,       #E8C547);
+  --tg-btn-text: var(--tg-theme-button-text-color,  #1a1408);
+  --tg-hint:     var(--tg-theme-hint-color,         #9a8f6e);
+  --tg-secondary:var(--tg-theme-secondary-bg-color, #0a0a0a);
+  --tg-link:     var(--tg-theme-link-color,         #FFD700);
+  --card:        #121212;
+  --border:      rgba(255, 215, 0, 0.12);
   --radius:      14px;
-  --accent:      #c9a962;
-  --accent2:     #e8dcc0;
+  --accent:      #E8C547;
+  --accent2:     #FFF4C2;
   --danger:      #c45c5c;
   --success:     #5c9a72;
-  --warn:        #c9a962;
-  --muted:       #5c5a56;
-  --lux-gold:    #c9a962;
-  --lux-gold-dim:rgba(201,169,98,0.28);
-  --lux-ink:     #0c0c0e;
-  --lux-graphite:#16161a;
-  --lux-pearl:   #f4f2ef;
+  --warn:        #FFD700;
+  --muted:       #6b6350;
+  --lux-gold:    #FFD700;
+  --lux-gold-dark:#B8860B;
+  --lux-gold-dim:rgba(255, 215, 0, 0.22);
+  --lux-gold-glow:rgba(255, 215, 0, 0.35);
+  --lux-ink:     #000000;
+  --lux-pearl:   #FFF9E3;
+  --gold-gradient: linear-gradient(135deg, #FFF9E3 0%, #FFD700 32%, #E8C547 58%, #B8860B 100%);
+  --gold-gradient-btn: linear-gradient(180deg, #FFE566 0%, #E8C547 45%, #A67C00 100%);
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body {
@@ -58,28 +61,41 @@ html, body {
   gap: 8px;
 }
 #header-logo {
-  font-size: 18px;
-  line-height: 1;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+}
+#header-logo img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 14px var(--lux-gold-glow);
 }
 #header-title {
   font-size: 15px;
   font-weight: 700;
-  color: var(--tg-text);
+  color: var(--lux-pearl);
   flex: 1;
   letter-spacing: -0.02em;
 }
 #header-title span {
-  color: var(--accent2);
+  background: var(--gold-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 #header-badge {
   font-size: 10px;
   font-weight: 700;
-  background: rgba(201,169,98,0.15);
+  background: rgba(255, 215, 0, 0.1);
   color: var(--lux-gold);
-  border: 1px solid rgba(201,169,98,0.35);
+  border: 1px solid rgba(255, 215, 0, 0.38);
   padding: 2px 7px;
   border-radius: 999px;
   letter-spacing: 0.08em;
+  text-shadow: 0 0 12px rgba(255, 215, 0, 0.25);
 }
 
 /* ── Input bar ─────────────────────────────── */
@@ -109,14 +125,14 @@ html, body {
   padding: 10px 18px;
   border: none;
   border-radius: var(--radius);
-  background: linear-gradient(180deg, #d4bc7a 0%, #b8944f 100%);
-  color: #0c0c0e;
+  background: var(--gold-gradient-btn);
+  color: #1a1408;
   font-weight: 700;
   font-size: 15px;
   cursor: pointer;
-  transition: filter .15s, transform .1s;
+  transition: filter .15s, transform .1s, box-shadow .15s;
   white-space: nowrap;
-  box-shadow: 0 2px 12px rgba(201,169,98,0.25);
+  box-shadow: 0 2px 16px rgba(255, 215, 0, 0.28), inset 0 1px 0 rgba(255, 249, 227, 0.45);
 }
 #buildBtn:active { filter: brightness(0.92); transform: scale(.97); }
 
@@ -159,9 +175,9 @@ html, body {
 #chat-free-badge {
   font-size: 10px;
   font-weight: 700;
-  color: var(--accent2);
-  background: rgba(99,102,241,.15);
-  border: 1px solid rgba(99,102,241,.35);
+  color: var(--lux-gold);
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.32);
   padding: 2px 8px;
   border-radius: 999px;
   margin-left: auto;
@@ -205,7 +221,7 @@ html, body {
 .chat-msg.user {
   align-self: flex-end;
   background: var(--accent);
-  color: #fff;
+  color: #1a1408;
   border-bottom-right-radius: 4px;
 }
 .chat-msg.ai {
@@ -246,16 +262,16 @@ html, body {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--lux-gold, var(--accent));
-  background: rgba(201,169,98,0.08);
-  border: 1px solid rgba(201,169,98,0.28);
+  background: rgba(255, 215, 0,0.08);
+  border: 1px solid rgba(255, 215, 0,0.28);
   border-radius: 999px;
   padding: 4px 10px;
   cursor: pointer;
   transition: background .15s, border-color .15s;
 }
 .examples-btn.open {
-  background: rgba(201,169,98,0.16);
-  border-color: rgba(201,169,98,0.45);
+  background: rgba(255, 215, 0,0.16);
+  border-color: rgba(255, 215, 0,0.45);
 }
 .examples-btn:active { transform: scale(0.97); }
 .examples-panel {
@@ -278,8 +294,8 @@ html, body {
   transition: border-color .15s, background .15s;
 }
 .example-chip:active {
-  border-color: rgba(201,169,98,0.45);
-  background: rgba(201,169,98,0.1);
+  border-color: rgba(255, 215, 0,0.45);
+  background: rgba(255, 215, 0,0.1);
 }
 
 #chat-input-row {
@@ -318,7 +334,7 @@ html, body {
   justify-content: center;
   transition: background .15s, transform .1s;
 }
-#sendChatBtn:active { background: #4f46e5; transform: scale(.93); }
+#sendChatBtn:active { background: var(--lux-gold-dark); transform: scale(.93); }
 
 #chat-choice-row {
   display: none;
@@ -340,9 +356,9 @@ html, body {
 }
 #chat-choice-row button:active { transform: scale(.97); }
 #buildGraphChoiceBtn {
-  background: linear-gradient(135deg, rgba(201,169,98,0.22), rgba(201,169,98,0.08));
+  background: linear-gradient(135deg, rgba(255, 215, 0,0.22), rgba(255, 215, 0,0.08));
   color: var(--lux-gold, var(--accent));
-  border-color: rgba(201,169,98,0.35);
+  border-color: rgba(255, 215, 0,0.35);
 }
 #continueInterviewBtn {
   background: var(--card);
@@ -398,8 +414,8 @@ html, body {
   inset: 0;
   opacity: 0.45;
   background-image:
-    linear-gradient(rgba(201,169,98,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(201,169,98,0.04) 1px, transparent 1px);
+    linear-gradient(rgba(255, 215, 0,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 215, 0,0.04) 1px, transparent 1px);
   background-size: 28px 28px;
   mask-image: radial-gradient(ellipse 85% 75% at 50% 45%, #000 20%, transparent 100%);
   pointer-events: none;
@@ -416,14 +432,14 @@ html, body {
   height: 42vmin;
   top: -8%;
   left: -6%;
-  background: rgba(201,169,98,0.14);
+  background: rgba(255, 215, 0,0.14);
 }
 .graph-glow-b {
   width: 36vmin;
   height: 36vmin;
   right: -8%;
   bottom: 6%;
-  background: rgba(92,122,110,0.12);
+  background: rgba(184, 134, 11, 0.14);
 }
 .graph-vignette {
   position: absolute;
@@ -507,8 +523,22 @@ html, body {
 .gt-btn:hover { background: rgba(255,255,255,0.06); }
 .gt-btn:active {
   transform: scale(0.94);
-  background: rgba(201,169,98,0.18);
+  background: rgba(255, 215, 0,0.18);
   color: var(--lux-gold);
+}
+.gt-btn-save {
+  width: auto;
+  min-width: 40px;
+  padding: 0 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--lux-gold, var(--accent));
+}
+.gt-btn-save:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
 }
 .gt-divider {
   width: 1px;
@@ -540,7 +570,7 @@ html, body {
   border: 1px solid rgba(255,255,255,0.1);
   background: rgba(22,22,26,0.9);
 }
-.chip.root       { border-color: rgba(201,169,98,0.55); color: var(--lux-gold); }
+.chip.root       { border-color: rgba(255, 215, 0,0.55); color: var(--lux-gold); }
 .chip.product    { border-color: rgba(92,122,110,0.5); }
 .chip.supplier   { border-color: rgba(138,115,85,0.5); }
 .chip.competitor { border-color: rgba(122,92,110,0.5); }
@@ -548,12 +578,12 @@ html, body {
 .chip.channel    { border-color: rgba(74,107,138,0.5); }
 .chip.economics  { border-color: rgba(74,122,98,0.5); }
 .chip.risk       { border-color: rgba(138,74,82,0.5); }
-.chip.category   { border-color: rgba(201,169,98,0.35); }
+.chip.category   { border-color: rgba(255, 215, 0,0.35); }
 .chip.plan       { border-color: rgba(255,255,255,0.12); }
 
 /* ── Loading overlay ───────────────────────── */
 #loading-overlay {
-  position: absolute;
+  position: fixed;
   inset: 0;
   display: none;
   flex-direction: column;
@@ -562,9 +592,23 @@ html, body {
   gap: 16px;
   background: rgba(12,12,14,0.88);
   backdrop-filter: blur(12px);
-  z-index: 30;
+  z-index: 9998;
 }
 #loading-overlay.visible { display: flex; }
+#app.api-busy #buildBtn,
+#app.api-busy #sendChatBtn,
+#app.api-busy #chatInput,
+#app.api-busy #queryInput,
+#app.api-busy #gtSave,
+#app.api-busy #buildGraphChoiceBtn,
+#app.api-busy #continueInterviewBtn,
+#app.api-busy #askNodeBtn,
+#app.api-busy #gtZoomIn,
+#app.api-busy #gtZoomOut,
+#app.api-busy #gtFit {
+  pointer-events: none;
+  opacity: 0.55;
+}
 .spinner {
   width: 36px;
   height: 36px;
@@ -590,7 +634,7 @@ html, body {
   background: rgba(18,18,20,0.96);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border-top: 1px solid rgba(201,169,98,0.35);
+  border-top: 1px solid rgba(255, 215, 0,0.35);
   border-radius: 22px 22px 0 0;
   padding: 0;
   box-shadow: 0 -16px 48px rgba(0,0,0,0.65);
@@ -698,15 +742,15 @@ html, body {
   transition: opacity .15s, transform .1s;
 }
 .detail-btn:active { opacity: .8; transform: scale(.98); }
-#askNodeBtn  { background: rgba(99,102,241,.18); color: var(--accent2); }
+#askNodeBtn  { background: rgba(255, 215, 0, 0.14); color: var(--lux-gold); border: 1px solid rgba(255, 215, 0, 0.28); }
 #askNodeBtn:disabled { opacity: .45; cursor: not-allowed; }
 #closeBtn    { background: var(--border); color: var(--tg-text); }
 .detail-tip-box {
   margin-top: 6px;
   padding: 10px 12px;
   border-radius: 12px;
-  background: rgba(99,102,241,.1);
-  border: 1px solid rgba(99,102,241,.25);
+  background: rgba(255, 215, 0, 0.08);
+  border: 1px solid rgba(255, 215, 0, 0.22);
   font-size: 13px;
   line-height: 1.45;
   color: var(--tg-text);
@@ -723,14 +767,93 @@ html, body {
   color: var(--tg-hint);
   margin-top: 2px;
 }
+
+#paywall-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,0.72);
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+#paywall-overlay.visible { display: flex; }
+#paywall-card {
+  width: 100%;
+  max-width: 340px;
+  background: var(--card);
+  border: 1px solid rgba(255, 215, 0,0.35);
+  border-radius: 16px;
+  padding: 20px 18px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+#paywall-card h3 {
+  margin: 0 0 8px;
+  font-size: 17px;
+  color: var(--lux-gold, var(--accent));
+}
+#paywall-text {
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--tg-text);
+  margin: 0 0 12px;
+  white-space: pre-wrap;
+}
+.paywall-features {
+  font-size: 12.5px;
+  color: var(--tg-hint);
+  margin: 0 0 14px;
+  padding-left: 18px;
+}
+.paywall-price {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--tg-text);
+  margin: 0 0 14px;
+}
+#paywallSubscribeBtn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  background: var(--gold-gradient-btn);
+  color: #1a1408;
+  margin-bottom: 8px;
+  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.25), inset 0 1px 0 rgba(255, 249, 227, 0.4);
+}
+#paywallSubscribeBtn:active { opacity: 0.9; transform: scale(0.98); }
+#paywallCloseBtn {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--tg-hint);
+  font-size: 13px;
+  cursor: pointer;
+}
+#header-limits {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--lux-gold, var(--accent));
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 215, 0,0.3);
+  background: rgba(255, 215, 0,0.08);
+}
 </style>
 </head>
 <body>
 <div id="app">
   <!-- Header -->
   <div id="header">
-    <div id="header-logo">🕷️</div>
+    <div id="header-logo"><img src="assets/logo.png" alt="Niche Spider" width="34" height="34"></div>
     <div id="header-title">Niche <span>Spider</span></div>
+    <span id="header-limits" title="Лимиты на сегодня">3/3</span>
     <div id="header-badge">AI</div>
   </div>
 
@@ -780,6 +903,8 @@ html, body {
       <button id="gtFit" class="gt-btn" type="button" title="Вписать в экран" aria-label="Вписать">◎</button>
       <span class="gt-divider" aria-hidden="true"></span>
       <button id="gtZoomIn" class="gt-btn" type="button" title="Приблизить" aria-label="Приблизить">+</button>
+      <span class="gt-divider" aria-hidden="true"></span>
+      <button id="gtSave" class="gt-btn gt-btn-save" type="button" title="Сохранить отчёт в чат" disabled>Сохранить</button>
     </div>
     <div id="fallback-list"></div>
 
@@ -807,22 +932,225 @@ html, body {
   </div>
 </div>
 
+<div id="paywall-overlay" role="dialog" aria-modal="true" aria-labelledby="paywall-title">
+  <div id="paywall-card">
+    <h3 id="paywall-title">Лимит на сегодня</h3>
+    <p id="paywall-text"></p>
+    <ul class="paywall-features">
+      <li>Бесплатно: 3 анализа и 5 уточнений в день</li>
+      <li>Подписка снимает лимиты на 30 дней</li>
+    </ul>
+    <p class="paywall-price"><span id="paywall-price">399</span> ₽/мес</p>
+    <button id="paywallSubscribeBtn" type="button">Оплатить</button>
+    <button id="paywallCloseBtn" type="button">Позже</button>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
 <script>
 (function () {
   const BASE_URL = 'https://nichespider.share.zrok.io';
-  const API_URL        = BASE_URL + '/analyze';
   const CHAT_START_URL = BASE_URL + '/chat/start';
   const CHAT_MSG_URL   = BASE_URL + '/chat/message';
+  const CHAT_EXPORT_URL = BASE_URL + '/chat/export';
+  const SUBSCRIBE_URL  = BASE_URL + '/user/subscribe';
+  const LIMITS_URL     = BASE_URL + '/user/limits';
   const tg = window.Telegram?.WebApp;
 
   let network = null, nodes = null, edges = null, visReady = false;
   const GRAPH_ZOOM_MIN = 0.35;
   const GRAPH_ZOOM_MAX = 1.65;
   let chatSessionId = null, selectedNode = null, chatCompleted = false;
-  let freeQuestionsLeft = 5, freeQuestionsLimit = 5;
   let interviewQuestion = 0, interviewMax = 10, interviewAwaitingChoice = false;
+  let telegramUserId = null;
+  let usageState = {
+    subscribed: false,
+    analyses_left: 3,
+    clarify_left: 5,
+    analyses_limit: 3,
+    clarify_limit: 5,
+    subscription_price_rub: 399,
+  };
   let graphNodeMeta = new Map();
+  let apiBusyDepth = 0;
+
+  function isApiBusy() { return apiBusyDepth > 0; }
+
+  function setApiBusy(on, text) {
+    const overlay = document.getElementById('loading-overlay');
+    const app = document.getElementById('app');
+    if (on) {
+      apiBusyDepth++;
+      if (text) {
+        const lt = document.getElementById('loading-text');
+        if (lt) lt.textContent = text;
+      }
+      overlay?.classList.add('visible');
+      app?.classList.add('api-busy');
+    } else {
+      apiBusyDepth = Math.max(0, apiBusyDepth - 1);
+      if (apiBusyDepth === 0) {
+        overlay?.classList.remove('visible');
+        app?.classList.remove('api-busy');
+      }
+    }
+  }
+
+  function userFriendlyError(err, context) {
+    const msg = String(err?.message || err || '').trim();
+    if (/failed to fetch|networkerror|load failed|нет связи/i.test(msg)) {
+      return 'Сервис временно недоступен.';
+    }
+    if (/session not found|сессия не найдена|сессия анализа/i.test(msg)) {
+      return 'Сессия анализа завершена. Нажмите «Старт» для нового анализа.';
+    }
+    if (context === 'graph') return 'Не удалось построить граф.';
+    if (context === 'start') return 'Не удалось начать анализ. Попробуйте позже.';
+    return 'Не удалось выполнить запрос. Попробуйте позже.';
+  }
+
+  function resetChatSession() {
+    chatSessionId = null;
+    chatCompleted = false;
+    interviewQuestion = 0;
+    interviewAwaitingChoice = false;
+    setInterviewChoiceUI(false);
+    setSaveButtonEnabled(false);
+    selectedNode = null;
+    closeDetails();
+  }
+
+  function isClarifyLimitReached() {
+    return chatCompleted && !usageState.subscribed && usageState.clarify_left <= 0;
+  }
+
+  function showClarifyLimitMessage() {
+    expandChatPanel();
+    const text =
+      'Лимит уточняющих вопросов на сегодня исчерпан. Оформите подписку или вернитесь завтра.';
+    appendMsg('ai', text);
+    showPaywall(text);
+    setStatus('Лимит уточнений на сегодня', 'err');
+  }
+
+  function getTelegramUserId() {
+    const id = tg?.initDataUnsafe?.user?.id;
+    return id ? Number(id) : null;
+  }
+
+  function apiBody(body) {
+    const out = { ...(body || {}) };
+    if (telegramUserId) out.telegram_user_id = telegramUserId;
+    return out;
+  }
+
+  function applyUsageFromResponse(data) {
+    if (!data || typeof data !== 'object') return;
+    if (data.subscribed !== undefined) usageState.subscribed = !!data.subscribed;
+    if (typeof data.analyses_left === 'number') usageState.analyses_left = data.analyses_left;
+    if (typeof data.clarify_left === 'number') usageState.clarify_left = data.clarify_left;
+    if (typeof data.analyses_limit === 'number') usageState.analyses_limit = data.analyses_limit;
+    if (typeof data.clarify_limit === 'number') usageState.clarify_limit = data.clarify_limit;
+    if (typeof data.subscription_price_rub === 'number') {
+      usageState.subscription_price_rub = data.subscription_price_rub;
+    }
+    updateLimitsUI();
+    if (chatCompleted) updateProgressBadge();
+  }
+
+  function updateLimitsUI() {
+    const el = document.getElementById('header-limits');
+    const priceEl = document.getElementById('paywall-price');
+    const subBtn = document.getElementById('paywallSubscribeBtn');
+    if (priceEl) priceEl.textContent = String(usageState.subscription_price_rub || 399);
+    if (subBtn) {
+      subBtn.textContent = 'Оплатить ' + (usageState.subscription_price_rub || 399) + ' ₽';
+    }
+    if (!el) return;
+    if (usageState.subscribed) {
+      el.textContent = 'PRO';
+      el.title = 'Подписка активна — лимиты сняты';
+      return;
+    }
+    el.textContent =
+      'анализ ' + usageState.analyses_left + '/' + usageState.analyses_limit;
+    el.title =
+      'Сегодня: анализов ' + usageState.analyses_left + '/' + usageState.analyses_limit +
+      ', уточнений ' + usageState.clarify_left + '/' + usageState.clarify_limit;
+  }
+
+  function setSaveButtonEnabled(on) {
+    const btn = document.getElementById('gtSave');
+    if (btn) btn.disabled = !on;
+  }
+
+  function showPaywall(message) {
+    const overlay = document.getElementById('paywall-overlay');
+    const text = document.getElementById('paywall-text');
+    if (text) text.textContent = message || 'Лимит на сегодня исчерпан.';
+    if (overlay) overlay.classList.add('visible');
+  }
+
+  function hidePaywall() {
+    const overlay = document.getElementById('paywall-overlay');
+    if (overlay) overlay.classList.remove('visible');
+  }
+
+  async function loadUsageLimits() {
+    if (!telegramUserId) return;
+    try {
+      const r = await fetch(LIMITS_URL + '?telegram_user_id=' + telegramUserId);
+      if (r.ok) applyUsageFromResponse(await r.json());
+    } catch (_) {}
+  }
+
+  async function subscribePlan() {
+    if (isApiBusy()) return;
+    if (!telegramUserId) {
+      setStatus('Подписка доступна только из Telegram', 'err');
+      return;
+    }
+    setApiBusy(true, 'Активирую подписку…');
+    setStatus('Активирую подписку…', 'busy');
+    try {
+      const data = await apiPost(SUBSCRIBE_URL, { telegram_user_id: telegramUserId });
+      applyUsageFromResponse(data);
+      hidePaywall();
+      expandChatPanel();
+      appendMsg('ai', data.message || 'Подписка активирована. Можно продолжать.');
+      setStatus('Подписка активна', 'ok');
+      if (tg?.showAlert) tg.showAlert('Подписка активирована на 30 дней');
+    } catch (err) {
+      setStatus(userFriendlyError(err), 'err');
+    } finally {
+      setApiBusy(false);
+    }
+  }
+
+  async function saveReport() {
+    if (isApiBusy()) return;
+    if (!chatSessionId || !chatCompleted) return;
+    if (!telegramUserId) {
+      setStatus('Сохранение работает только в Telegram Mini App', 'err');
+      return;
+    }
+    setApiBusy(true, 'Сохраняю…');
+    setStatus('Отправляю отчёт в чат…', 'busy');
+    try {
+      const data = await apiPost(CHAT_EXPORT_URL, {
+        session_id: chatSessionId,
+        telegram_user_id: telegramUserId,
+      });
+      setStatus(data.message || 'Отчёт отправлен в чат', 'ok');
+      if (tg?.showPopup) {
+        tg.showPopup({ title: 'Сохранено', message: data.message || 'Файл в чате Telegram' });
+      }
+    } catch (err) {
+      setStatus(userFriendlyError(err), 'err');
+    } finally {
+      setApiBusy(false);
+    }
+  }
 
   function setInterviewChoiceUI(visible) {
     interviewAwaitingChoice = !!visible;
@@ -836,20 +1164,24 @@ html, body {
   }
 
   function applyChatResponse(data) {
+    applyUsageFromResponse(data);
+    if (data.paywall) {
+      resetChatSession();
+      showPaywall(data.assistant_message);
+      setStatus('Достигнут лимит на сегодня', 'err');
+      return;
+    }
     chatCompleted = !!data.is_completed;
-    updateFreeBadge(
-      data.free_questions_left ?? freeQuestionsLeft,
-      data.free_questions_limit ?? freeQuestionsLimit,
-      data.interview_question,
-      data.interview_max
-    );
+    if (data.session_id) chatSessionId = data.session_id;
+    updateProgressBadge(data.interview_question, data.interview_max);
     setInterviewChoiceUI(!!data.interview_awaiting_choice);
     if (!data.is_completed && !data.interview_awaiting_choice) expandChatPanel();
     renderGraph(data.graph_nodes || [], data.graph_edges || []);
     if (data.is_completed) setInterviewChoiceUI(false);
+    setSaveButtonEnabled(!!data.is_completed && !!chatSessionId);
     setStatus(
       data.is_completed
-        ? ('✅ Граф готов · AI вопросов: ' + (data.free_questions_left ?? 0))
+        ? ('✅ Граф готов · уточнений: ' + (data.clarify_left ?? usageState.clarify_left))
         : (data.interview_awaiting_choice
           ? 'Выберите: построить граф или уточнить дальше'
           : ('Опрос (' + (data.interview_question || interviewQuestion) + '/' + (data.interview_max || interviewMax) + ')')),
@@ -857,9 +1189,7 @@ html, body {
     );
   }
 
-  function updateFreeBadge(left, limit, qNum, qMax) {
-    freeQuestionsLeft = left;
-    freeQuestionsLimit = limit;
+  function updateProgressBadge(qNum, qMax) {
     if (typeof qNum === 'number') interviewQuestion = qNum;
     if (typeof qMax === 'number') interviewMax = qMax;
     const el = document.getElementById('chat-free-badge');
@@ -872,10 +1202,9 @@ html, body {
       el.style.opacity = '1';
       return;
     }
-    el.textContent = 'AI ' + left + '/' + limit;
-    el.title = 'Бесплатных вопросов к AI осталось: ' + left + ' из ' + limit;
-    if (left === 0) el.style.opacity = '0.55';
-    else el.style.opacity = '1';
+    el.textContent = 'AI ' + usageState.clarify_left + '/' + usageState.clarify_limit;
+    el.title = 'Уточняющих вопросов сегодня: ' + usageState.clarify_left + ' из ' + usageState.clarify_limit;
+    el.style.opacity = usageState.clarify_left === 0 ? '0.55' : '1';
   }
 
   // ── Status ──────────────────────────────────────────────────────────
@@ -968,22 +1297,23 @@ html, body {
     category:'—', plan:'·', warehouse:'▤', generic:'·'
   };
   const LUX = {
-    gold: '#C9A962',
-    edgeHub: 'rgba(201,169,98,0.28)',
-    edgeLeaf: 'rgba(255,255,255,0.1)',
+    gold: '#FFD700',
+    goldMid: '#E8C547',
+    edgeHub: 'rgba(255, 215, 0, 0.32)',
+    edgeLeaf: 'rgba(255, 215, 0, 0.08)',
     groups: {
-      root:      { fill: '#1A1812', border: '#C9A962', glow: 'rgba(201,169,98,0.32)', font: '#F5F0E8' },
-      product:   { fill: '#141816', border: '#5C7A6E', glow: 'rgba(92,122,110,0.22)', font: '#E6EDE9' },
-      supplier:  { fill: '#181614', border: '#8A7355', glow: 'rgba(138,115,85,0.2)', font: '#EDE8E0' },
-      competitor:{ fill: '#181416', border: '#7A5C6E', glow: 'rgba(122,92,110,0.2)', font: '#EDE6EA' },
-      audience:  { fill: '#141418', border: '#6B6589', glow: 'rgba(107,101,137,0.2)', font: '#E8E6F0' },
-      channel:   { fill: '#12161A', border: '#4A6B8A', glow: 'rgba(74,107,138,0.2)', font: '#E4ECF4' },
-      economics: { fill: '#121816', border: '#4A7A62', glow: 'rgba(74,122,98,0.22)', font: '#E2F0E8' },
-      risk:      { fill: '#1A1214', border: '#8A4A52', glow: 'rgba(138,74,82,0.22)', font: '#F0E4E6' },
-      category:  { fill: '#101012', border: 'rgba(201,169,98,0.45)', glow: 'rgba(201,169,98,0.14)', font: '#C9A962' },
-      plan:      { fill: '#141418', border: 'rgba(232,230,227,0.18)', glow: 'rgba(0,0,0,0.2)', font: '#B8B4AC' },
-      warehouse: { fill: '#12161A', border: '#4A6B8A', glow: 'rgba(74,107,138,0.18)', font: '#E4ECF4' },
-      generic:   { fill: '#16161A', border: 'rgba(255,255,255,0.12)', glow: 'rgba(0,0,0,0.25)', font: '#E8E6E3' },
+      root:      { fill: '#141008', border: '#FFD700', glow: 'rgba(255,215,0,0.35)', font: '#FFF9E3' },
+      product:   { fill: '#12100c', border: '#C9A227', glow: 'rgba(232,197,71,0.22)', font: '#FFF4E0' },
+      supplier:  { fill: '#12100e', border: '#B8860B', glow: 'rgba(184,134,11,0.24)', font: '#FFF0D8' },
+      competitor:{ fill: '#120e10', border: '#D4AF37', glow: 'rgba(212,175,55,0.2)', font: '#FFF4E8' },
+      audience:  { fill: '#100f12', border: '#C9A962', glow: 'rgba(255, 215, 0,0.2)', font: '#FFF8EE' },
+      channel:   { fill: '#0e1012', border: '#A67C00', glow: 'rgba(166,124,0,0.22)', font: '#FFF6E8' },
+      economics: { fill: '#0e120e', border: '#8B9A46', glow: 'rgba(139,154,70,0.2)', font: '#F2F8E8' },
+      risk:      { fill: '#140e0e', border: '#B85C5C', glow: 'rgba(184,92,92,0.2)', font: '#FFF0F0' },
+      category:  { fill: '#0e0e0e', border: 'rgba(255,215,0,0.5)', glow: 'rgba(255,215,0,0.16)', font: '#FFD700' },
+      plan:      { fill: '#101014', border: 'rgba(255,215,0,0.22)', glow: 'rgba(0,0,0,0.2)', font: '#C9B896' },
+      warehouse: { fill: '#0e1012', border: '#A67C00', glow: 'rgba(166,124,0,0.18)', font: '#FFF6E8' },
+      generic:   { fill: '#121212', border: 'rgba(255,215,0,0.15)', glow: 'rgba(0,0,0,0.25)', font: '#FFF9E3' },
     }
   };
 
@@ -1014,7 +1344,7 @@ html, body {
 
   function initVis() {
     if (typeof vis === 'undefined') {
-      setStatus('vis-network не загрузился', 'err');
+      setStatus('Не удалось отобразить граф', 'err');
       return false;
     }
     nodes = new vis.DataSet([]);
@@ -1048,7 +1378,7 @@ html, body {
           color: {
             color: LUX.edgeLeaf,
             highlight: LUX.gold,
-            hover: 'rgba(201,169,98,0.55)',
+            hover: 'rgba(255, 215, 0, 0.55)',
             opacity: 0.85
           },
           smooth: {
@@ -1229,7 +1559,7 @@ html, body {
         color: {
           color: isTrunk ? LUX.edgeHub : LUX.edgeLeaf,
           highlight: LUX.gold,
-          hover: 'rgba(201,169,98,0.5)',
+          hover: 'rgba(255, 215, 0, 0.5)',
           opacity: isTrunk ? 0.9 : 0.65
         },
         smooth: {
@@ -1358,7 +1688,6 @@ html, body {
     nodes.add(luxNodes);
     edges.add(luxEdges);
     updateGraphLegend(luxNodes);
-    document.getElementById('graph-container').classList.add('graph-live');
     setTimeout(() => {
       network.redraw();
       fitGraphToView(true);
@@ -1479,7 +1808,7 @@ html, body {
         if (url) {
           const copyIdx = detailCopyUrls.length;
           detailCopyUrls.push(url);
-          copyBtn = `<button type="button" class="detail-btn copy-src-btn" data-copy-idx="${copyIdx}" style="width:auto;padding:8px 10px;font-size:12px;background:rgba(99,102,241,.18);color:var(--accent2);border-radius:10px;">Копировать</button>`;
+          copyBtn = `<button type="button" class="detail-btn copy-src-btn" data-copy-idx="${copyIdx}" style="width:auto;padding:8px 10px;font-size:12px;background:rgba(255,215,0,0.12);color:var(--lux-gold);border:1px solid rgba(255,215,0,0.28);border-radius:10px;">Копировать</button>`;
         }
         html += `<div class="detail-source-card">
           <div style="display:flex;gap:8px;align-items:flex-start;">
@@ -1548,49 +1877,53 @@ html, body {
   }
 
   async function sendInterviewChoice(kind) {
+    if (isApiBusy()) return;
     if (!chatSessionId) return;
     const msg = kind === 'build' ? 'Построить граф' : 'Уточнить дальше';
     expandChatPanel();
     appendMsg('user', msg);
     setInterviewChoiceUI(false);
+    const busyText = kind === 'build' ? 'Строю граф…' : 'Готовлю вопрос…';
+    setApiBusy(true, busyText);
     setStatus('AI думает…', 'busy');
-    document.getElementById('loading-overlay').classList.add('visible');
-    document.getElementById('loading-text').textContent = kind === 'build' ? 'Строю граф…' : 'Готовлю вопрос…';
     try {
-      const data = await apiPost(CHAT_MSG_URL, { session_id: chatSessionId, message: msg });
+      const data = await apiPost(CHAT_MSG_URL, apiBody({ session_id: chatSessionId, message: msg }));
       appendMsg('ai', data.assistant_message, {
         examples: data.is_completed ? [] : (data.answer_examples || []),
       });
       applyChatResponse(data);
     } catch (err) {
-      setStatus('Ошибка: ' + err.message, 'err');
-      appendMsg('ai', '❌ ' + err.message);
+      const text = userFriendlyError(err, kind === 'build' ? 'graph' : 'message');
+      setStatus(text, 'err');
+      appendMsg('ai', text);
       setInterviewChoiceUI(true);
     } finally {
-      document.getElementById('loading-overlay').classList.remove('visible');
+      setApiBusy(false);
     }
   }
 
   async function sendMsgText(msg) {
+    if (isApiBusy()) return;
     if (!msg || !chatSessionId) return;
+    setApiBusy(true, 'Готовлю ответ…');
     setStatus('AI думает…', 'busy');
-    document.getElementById('loading-overlay').classList.add('visible');
-    document.getElementById('loading-text').textContent = 'Готовлю ответ…';
     try {
-      const data = await apiPost(CHAT_MSG_URL, { session_id: chatSessionId, message: msg });
+      const data = await apiPost(CHAT_MSG_URL, apiBody({ session_id: chatSessionId, message: msg }));
       appendMsg('ai', data.assistant_message, {
         examples: data.is_completed ? [] : (data.answer_examples || []),
       });
       applyChatResponse(data);
     } catch (err) {
-      setStatus('Ошибка: ' + err.message, 'err');
-      appendMsg('ai', '❌ ' + err.message);
+      const text = userFriendlyError(err);
+      setStatus(text, 'err');
+      appendMsg('ai', text);
     } finally {
-      document.getElementById('loading-overlay').classList.remove('visible');
+      setApiBusy(false);
     }
   }
 
   async function askAboutNode() {
+    if (isApiBusy()) return;
     const meta = selectedNode && resolveNode(selectedNode.id);
     if (!meta) return;
     if (!chatSessionId) {
@@ -1598,9 +1931,8 @@ html, body {
       appendMsg('ai', 'Сначала нажми «Старт» и опиши идею бизнеса.');
       return;
     }
-    if (chatCompleted && freeQuestionsLeft <= 0) {
-      expandChatPanel();
-      appendMsg('ai', 'Лимит бесплатных вопросов к AI исчерпан. Откройте карточку блока на графе.');
+    if (isClarifyLimitReached()) {
+      showClarifyLimitMessage();
       return;
     }
     const title = meta.full_label || meta.label || 'блок';
@@ -1612,12 +1944,11 @@ html, body {
   }
 
   // ── API helpers ───────────────────────────────────────────────────────
-  function formatApiError(status, raw) {
-    if (status === 502 || status === 503) {
-      return 'API недоступен (туннель есть, сервер выключен). Запусти: ./scripts/01-api.sh и ./scripts/02-zrok.sh';
+  function formatApiError(status) {
+    if (status >= 500 || status === 502 || status === 503) {
+      return 'Сервис временно недоступен.';
     }
-    if (status === 404) return 'Эндпоинт не найден — проверь URL API в BASE_URL';
-    return raw || `HTTP ${status}`;
+    return 'Не удалось выполнить запрос. Попробуйте позже.';
   }
 
   async function apiPost(url, body, retries = 1) {
@@ -1631,10 +1962,11 @@ html, body {
         });
         const text = await r.text();
         let data = {};
-        try { data = text ? JSON.parse(text) : {}; } catch (_) { data = { detail: text }; }
+        try { data = text ? JSON.parse(text) : {}; } catch (_) { data = {}; }
         if (!r.ok) {
-          const detail = typeof data.detail === 'string' ? data.detail : formatApiError(r.status, text);
-          throw new Error(detail);
+          const detail = typeof data.detail === 'string' ? data.detail : '';
+          const technical = /traceback|\.py:|internal server|chat start failed|chat message failed/i.test(detail);
+          throw new Error(technical || !detail ? formatApiError(r.status) : detail);
         }
         return data;
       } catch (err) {
@@ -1645,36 +1977,36 @@ html, body {
         await new Promise((r) => setTimeout(r, 800));
       }
     }
-    const hint = 'Проверь: ./scripts/01-api.sh и ./scripts/02-zrok.sh, затем BASE_URL = ' + BASE_URL;
-    throw new Error(
-      /failed to fetch|networkerror|load failed/i.test(String(lastErr.message || lastErr))
-        ? ('Нет связи с API. ' + hint)
-        : (lastErr.message || String(lastErr))
-    );
+    const msg = String(lastErr?.message || lastErr || '');
+    if (/failed to fetch|networkerror|load failed/i.test(msg)) {
+      throw new Error('Сервис временно недоступен.');
+    }
+    throw new Error(msg || 'Не удалось выполнить запрос. Попробуйте позже.');
   }
 
   async function pingApi() {
     try {
       const r = await fetch(BASE_URL + '/', { method: 'GET' });
       if (r.ok) {
-        setStatus('API доступен', 'ok');
+        setStatus('Готов к работе', 'ok');
         return true;
       }
-      setStatus(formatApiError(r.status, '') + ' · ' + BASE_URL, 'err');
+      setStatus('Сервис временно недоступен', 'err');
       return false;
     } catch (_) {
-      setStatus('API недоступен — запусти backend + zrok · ' + BASE_URL, 'err');
+      setStatus('Сервис временно недоступен', 'err');
       return false;
     }
   }
 
   // ── Start chat ────────────────────────────────────────────────────────
   async function startChat() {
+    if (isApiBusy()) return;
     const query = document.getElementById('queryInput').value.trim();
     if (!query) { document.getElementById('queryInput').focus(); return; }
 
-    document.getElementById('loading-overlay').classList.add('visible');
-    document.getElementById('loading-text').textContent = 'Запускаю анализ…';
+    resetChatSession();
+    setApiBusy(true, 'Запускаю анализ…');
     setStatus('Запрос к AI…', 'busy');
     document.getElementById('chat-log').innerHTML = '';
     setInterviewChoiceUI(false);
@@ -1682,22 +2014,28 @@ html, body {
     closeDetails();
 
     try {
-      const data = await apiPost(CHAT_START_URL, { query });
-      chatSessionId = data.session_id;
+      const data = await apiPost(CHAT_START_URL, apiBody({ query }));
+      if (data.paywall) {
+        appendMsg('ai', data.assistant_message);
+        applyChatResponse(data);
+        return;
+      }
       appendMsg('ai', data.assistant_message, {
         examples: data.is_completed ? [] : (data.answer_examples || []),
       });
       applyChatResponse(data);
     } catch (err) {
-      setStatus('Ошибка: ' + err.message, 'err');
-      appendMsg('ai', '❌ ' + err.message);
+      const text = userFriendlyError(err, 'start');
+      setStatus(text, 'err');
+      appendMsg('ai', text);
     } finally {
-      document.getElementById('loading-overlay').classList.remove('visible');
+      setApiBusy(false);
     }
   }
 
   // ── Send message ──────────────────────────────────────────────────────
   async function sendMsg() {
+    if (isApiBusy()) return;
     const inp = document.getElementById('chatInput');
     const msg = inp.value.trim();
     if (!msg) return;
@@ -1706,12 +2044,15 @@ html, body {
       appendMsg('ai', 'Сначала выбери: «Построить граф» или «Уточнить дальше».');
       return;
     }
+    if (isClarifyLimitReached()) {
+      showClarifyLimitMessage();
+      return;
+    }
 
     expandChatPanel();
     appendMsg('user', msg);
     inp.value = '';
     autoGrow(inp);
-    document.getElementById('loading-text').textContent = 'Обрабатываю ответ…';
     await sendMsgText(msg);
   }
 
@@ -1719,8 +2060,22 @@ html, body {
   function boot() {
     layoutHeights();
     initVis();
+    telegramUserId = getTelegramUserId();
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      try {
+        tg.setHeaderColor('#000000');
+        tg.setBackgroundColor('#000000');
+      } catch (_) {}
+    }
+    updateLimitsUI();
+    loadUsageLimits();
 
     document.getElementById('buildBtn').addEventListener('click', startChat);
+    document.getElementById('gtSave').addEventListener('click', saveReport);
+    document.getElementById('paywallSubscribeBtn').addEventListener('click', subscribePlan);
+    document.getElementById('paywallCloseBtn').addEventListener('click', hidePaywall);
     document.getElementById('buildGraphChoiceBtn').addEventListener('click', () => sendInterviewChoice('build'));
     document.getElementById('continueInterviewBtn').addEventListener('click', () => sendInterviewChoice('continue'));
     document.getElementById('sendChatBtn').addEventListener('click', sendMsg);
@@ -1760,18 +2115,18 @@ html, body {
     const input = document.getElementById('queryInput');
     input.value = q;
 
-    updateFreeBadge(5, 5);
+    updateProgressBadge();
 
     pingApi().then((ok) => {
       if (q && autostart && ok) {
         setStatus('Запускаю анализ…', 'busy');
         setTimeout(() => startChat(), 400);
       } else if (q && autostart && !ok) {
-        setStatus('API недоступен — сначала запусти сервер', 'err');
+        setStatus('Сервис временно недоступен', 'err');
       } else if (q) {
-        setStatus(ok ? 'Идея подставлена — нажми Старт' : 'API недоступен', ok ? 'ok' : 'err');
+        setStatus(ok ? 'Идея подставлена — нажми Старт' : 'Сервис временно недоступен', ok ? 'ok' : 'err');
       } else if (!ok) {
-        setStatus('API недоступен — запусти backend + zrok', 'err');
+        setStatus('Сервис временно недоступен', 'err');
       }
     });
   }
