@@ -1339,7 +1339,7 @@ html, body {
     audience:'◎', channel:'▣', economics:'◉', risk:'!',
     category:'—', plan:'·', warehouse:'▤', clarify:'↳', generic:'·'
   };
-  const LUX = {
+  const LUX_DARK = {
     gold: '#D4A574',
     goldMid: '#C9A66B',
     edgeHub: 'rgba(201, 166, 107, 0.32)',
@@ -1361,11 +1361,46 @@ html, body {
     }
   };
 
+  const LUX_LIGHT = {
+    gold: '#9A7B4F',
+    goldMid: '#C9A66B',
+    edgeHub: 'rgba(154, 123, 79, 0.42)',
+    edgeLeaf: 'rgba(154, 123, 79, 0.2)',
+    groups: {
+      root:      { fill: '#fff8ee', border: '#C9A66B', glow: 'rgba(201,166,107,0.22)', font: '#1a1408' },
+      product:   { fill: '#ffffff', border: '#C9A66B', glow: 'rgba(0,0,0,0.08)', font: '#1a1408' },
+      supplier:  { fill: '#fffaf5', border: '#B8956A', glow: 'rgba(0,0,0,0.07)', font: '#1a1408' },
+      competitor:{ fill: '#fff8f8', border: '#C9A66B', glow: 'rgba(0,0,0,0.07)', font: '#1a1408' },
+      audience:  { fill: '#fffaf8', border: '#D4A574', glow: 'rgba(0,0,0,0.07)', font: '#1a1408' },
+      channel:   { fill: '#ffffff', border: '#9A7B4F', glow: 'rgba(0,0,0,0.07)', font: '#1a1408' },
+      economics: { fill: '#f8faf4', border: '#8B9A46', glow: 'rgba(0,0,0,0.07)', font: '#1a1408' },
+      risk:      { fill: '#fff6f6', border: '#B85C5C', glow: 'rgba(184,92,92,0.12)', font: '#1a1408' },
+      category:  { fill: '#fff8ee', border: 'rgba(201,166,107,0.55)', glow: 'rgba(201,166,107,0.12)', font: '#6b5340' },
+      plan:      { fill: '#ffffff', border: 'rgba(201,166,107,0.35)', glow: 'rgba(0,0,0,0.06)', font: '#1a1408' },
+      clarify:   { fill: '#fffdf8', border: '#E8C9A0', glow: 'rgba(232,201,160,0.2)', font: '#1a1408' },
+      warehouse: { fill: '#ffffff', border: '#9A7B4F', glow: 'rgba(0,0,0,0.06)', font: '#1a1408' },
+      generic:   { fill: '#ffffff', border: 'rgba(201,166,107,0.35)', glow: 'rgba(0,0,0,0.08)', font: '#1a1408' },
+    }
+  };
+
+  let lastGraphNodes = [];
+  let lastGraphEdges = [];
+
+  function isLightTheme() {
+    return document.documentElement.getAttribute('data-theme') === 'light';
+  }
+
+  function getLux() {
+    return isLightTheme() ? LUX_LIGHT : LUX_DARK;
+  }
+
   function luxStyle(group) {
+    const LUX = getLux();
     return LUX.groups[group] || LUX.groups.generic;
   }
 
   function makeGroups() {
+    const LUX = getLux();
     const g = {};
     for (const [key, style] of Object.entries(LUX.groups)) {
       g[key] = {
@@ -1391,6 +1426,7 @@ html, body {
       setStatus('Не удалось отобразить граф', 'err');
       return false;
     }
+    const lux = getLux();
     nodes = new vis.DataSet([]);
     edges = new vis.DataSet([]);
     network = new vis.Network(
@@ -1402,7 +1438,7 @@ html, body {
           margin: { top: 10, right: 14, bottom: 10, left: 14 },
           widthConstraint: { minimum: 72, maximum: 168 },
           heightConstraint: { minimum: 36, valign: 'middle' },
-          font: { size: 11, color: '#F4F2EF', face: LUX_FONT, vadjust: 0 },
+          font: { size: 11, color: lux.groups.generic.font, face: LUX_FONT, vadjust: 0 },
           borderWidth: 1.5,
           borderWidthSelected: 2,
           shapeProperties: { borderRadius: 14 },
@@ -1411,7 +1447,7 @@ html, body {
             size: 10,
             x: 0,
             y: 3,
-            color: 'rgba(0,0,0,0.45)'
+            color: isLightTheme() ? 'rgba(0,0,0,0.12)' : 'rgba(0,0,0,0.45)'
           }
         },
         edges: {
@@ -1420,8 +1456,8 @@ html, body {
           hoverWidth: 1.25,
           arrows: { to: { enabled: true, scaleFactor: 0.42, type: 'arrow' } },
           color: {
-            color: LUX.edgeLeaf,
-            highlight: LUX.gold,
+            color: lux.edgeLeaf,
+            highlight: lux.gold,
             hover: 'rgba(201, 166, 107, 0.55)',
             opacity: 0.85
           },
@@ -1519,6 +1555,8 @@ html, body {
   }
 
   function enrichNodesForLuxury(rawNodes) {
+    const LUX = getLux();
+    const shadowBase = isLightTheme() ? 'rgba(0,0,0,0.12)' : null;
     return rawNodes.map((node) => {
       const g = node.group || 'generic';
       const style = luxStyle(g);
@@ -1538,7 +1576,7 @@ html, body {
         size: isRoot ? 22 : (isHub ? 10 : 7),
         x: 0,
         y: isRoot ? 5 : 2,
-        color: style.glow
+        color: shadowBase || style.glow
       };
       base.font = {
         face: LUX_FONT,
@@ -1592,6 +1630,7 @@ html, body {
   }
 
   function enrichEdgesForLuxury(rawEdges, hubIds, rootId) {
+    const LUX = getLux();
     const hubs = hubIds || new Set();
     return rawEdges.map((edge) => {
       const touchesHub = hubs.has(edge.from) || hubs.has(edge.to);
@@ -1720,6 +1759,8 @@ html, body {
 
   function renderGraph(gNodes, gEdges) {
     if (!gNodes.length) return;
+    lastGraphNodes = gNodes;
+    lastGraphEdges = gEdges || [];
     graphNodeMeta.clear();
     for (const n of gNodes) graphNodeMeta.set(n.id, n);
     if (!visReady) { showFallback(gNodes, gEdges); return; }
@@ -1727,6 +1768,7 @@ html, body {
     const { nodes: tn, edges: te, hubIds, rootId } = buildTree(gNodes);
     const luxNodes = enrichNodesForLuxury(tn);
     const luxEdges = enrichEdgesForLuxury(te, hubIds, rootId);
+    if (network) network.setOptions({ groups: makeGroups() });
     nodes.clear();
     edges.clear();
     nodes.add(luxNodes);
@@ -2103,17 +2145,23 @@ html, body {
     await sendMsgText(msg);
   }
 
+  function refreshGraphTheme() {
+    if (lastGraphNodes.length) renderGraph(lastGraphNodes, lastGraphEdges);
+  }
+
   function applyTheme() {
     const light = tg?.colorScheme === 'light';
     const theme = light ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', theme);
-    if (!tg) return;
-    try {
-      const bg = light ? '#f5f0eb' : '#0a0a0a';
-      tg.setHeaderColor(bg);
-      tg.setBackgroundColor(bg);
-      if (typeof tg.setBottomBarColor === 'function') tg.setBottomBarColor(bg);
-    } catch (_) {}
+    if (tg) {
+      try {
+        const bg = light ? '#f5f0eb' : '#0a0a0a';
+        tg.setHeaderColor(bg);
+        tg.setBackgroundColor(bg);
+        if (typeof tg.setBottomBarColor === 'function') tg.setBottomBarColor(bg);
+      } catch (_) {}
+    }
+    refreshGraphTheme();
     if (network) setTimeout(() => network.redraw(), 80);
   }
 
