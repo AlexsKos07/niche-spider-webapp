@@ -1112,7 +1112,7 @@ html, body {
     if (!el) return;
     if (usageState.subscribed) {
       el.textContent = 'PRO';
-      el.title = 'Подписка активна — лимиты сняты';
+      el.title = 'Подписка PRO активна';
       return;
     }
     el.textContent =
@@ -1224,7 +1224,9 @@ html, body {
     setSaveButtonEnabled(!!data.is_completed && !!chatSessionId);
     setStatus(
       data.is_completed
-        ? ('✅ Граф готов · уточнений: ' + (data.clarify_left ?? usageState.clarify_left))
+        ? (usageState.subscribed
+          ? '✅ Граф готов'
+          : ('✅ Граф готов · уточнений: ' + (data.clarify_left ?? usageState.clarify_left)))
         : (data.interview_awaiting_choice
           ? 'Выберите: построить граф или уточнить дальше'
           : ('Опрос (' + (data.interview_question || interviewQuestion) + '/' + (data.interview_max || interviewMax) + ')')),
@@ -1242,6 +1244,12 @@ html, body {
       const m = interviewMax || 10;
       el.textContent = n > 0 ? ('опрос ' + n + '/' + m) : 'опрос';
       el.title = 'Вопросы перед построением графа (до ' + m + ', можно раньше)';
+      el.style.opacity = '1';
+      return;
+    }
+    if (usageState.subscribed) {
+      el.textContent = 'PRO';
+      el.title = 'Подписка активна';
       el.style.opacity = '1';
       return;
     }
