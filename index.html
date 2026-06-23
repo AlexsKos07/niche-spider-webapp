@@ -139,7 +139,8 @@ html, body {
   overflow: hidden;
 }
 #chat-panel.collapsed #chat-log,
-#chat-panel.collapsed #chat-input-row {
+#chat-panel.collapsed #chat-input-row,
+#chat-panel.collapsed #chat-choice-row {
   display: none;
 }
 #chat-panel-head {
@@ -222,6 +223,65 @@ html, body {
   display: block;
 }
 
+.chat-msg-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 88%;
+}
+.chat-msg-wrap.user { align-self: flex-end; }
+.chat-msg-wrap.ai   { align-self: flex-start; }
+.chat-msg-wrap .chat-msg { max-width: 100%; }
+
+.chat-examples {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding-left: 2px;
+}
+.examples-btn {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--lux-gold, var(--accent));
+  background: rgba(201,169,98,0.08);
+  border: 1px solid rgba(201,169,98,0.28);
+  border-radius: 999px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.examples-btn.open {
+  background: rgba(201,169,98,0.16);
+  border-color: rgba(201,169,98,0.45);
+}
+.examples-btn:active { transform: scale(0.97); }
+.examples-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 100%;
+}
+.examples-panel.hidden { display: none; }
+.example-chip {
+  font-size: 11.5px;
+  line-height: 1.3;
+  color: var(--tg-text);
+  background: rgba(22,22,26,0.92);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 5px 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color .15s, background .15s;
+}
+.example-chip:active {
+  border-color: rgba(201,169,98,0.45);
+  background: rgba(201,169,98,0.1);
+}
+
 #chat-input-row {
   display: flex;
   gap: 8px;
@@ -259,6 +319,35 @@ html, body {
   transition: background .15s, transform .1s;
 }
 #sendChatBtn:active { background: #4f46e5; transform: scale(.93); }
+
+#chat-choice-row {
+  display: none;
+  gap: 8px;
+  padding-top: 2px;
+}
+#chat-choice-row.visible {
+  display: flex;
+}
+#chat-choice-row button {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: background .15s, border-color .15s, transform .1s;
+}
+#chat-choice-row button:active { transform: scale(.97); }
+#buildGraphChoiceBtn {
+  background: linear-gradient(135deg, rgba(201,169,98,0.22), rgba(201,169,98,0.08));
+  color: var(--lux-gold, var(--accent));
+  border-color: rgba(201,169,98,0.35);
+}
+#continueInterviewBtn {
+  background: var(--card);
+  color: var(--tg-text);
+}
 
 /* ── Status bar ────────────────────────────── */
 #status-bar {
@@ -659,6 +748,10 @@ html, body {
       <button id="chatToggleBtn" type="button" aria-expanded="true">▼ Свернуть</button>
     </div>
     <div id="chat-log"></div>
+    <div id="chat-choice-row">
+      <button id="buildGraphChoiceBtn" type="button">Построить граф</button>
+      <button id="continueInterviewBtn" type="button">Уточнить дальше</button>
+    </div>
     <div id="chat-input-row">
       <textarea id="chatInput" placeholder="Ответь на вопрос AI…" rows="1"></textarea>
       <button id="sendChatBtn" type="button">&#10148;</button>
@@ -717,7 +810,7 @@ html, body {
 <script src="https://cdn.jsdelivr.net/npm/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
 <script>
 (function () {
-  const BASE_URL = 'https://f7wr05xsf7d1.share.zrok.io';
+  const BASE_URL = 'https://nichespider.share.zrok.io';
   const API_URL        = BASE_URL + '/analyze';
   const CHAT_START_URL = BASE_URL + '/chat/start';
   const CHAT_MSG_URL   = BASE_URL + '/chat/message';
@@ -728,16 +821,55 @@ html, body {
   const GRAPH_ZOOM_MAX = 1.65;
   let chatSessionId = null, selectedNode = null, chatCompleted = false;
   let freeQuestionsLeft = 5, freeQuestionsLimit = 5;
+  let interviewQuestion = 0, interviewMax = 10, interviewAwaitingChoice = false;
   let graphNodeMeta = new Map();
 
-  function updateFreeBadge(left, limit) {
+  function setInterviewChoiceUI(visible) {
+    interviewAwaitingChoice = !!visible;
+    const row = document.getElementById('chat-choice-row');
+    const inp = document.getElementById('chatInput');
+    const send = document.getElementById('sendChatBtn');
+    if (!row) return;
+    row.classList.toggle('visible', !!visible);
+    if (inp) inp.disabled = !!visible;
+    if (send) send.disabled = !!visible;
+  }
+
+  function applyChatResponse(data) {
+    chatCompleted = !!data.is_completed;
+    updateFreeBadge(
+      data.free_questions_left ?? freeQuestionsLeft,
+      data.free_questions_limit ?? freeQuestionsLimit,
+      data.interview_question,
+      data.interview_max
+    );
+    setInterviewChoiceUI(!!data.interview_awaiting_choice);
+    if (!data.is_completed && !data.interview_awaiting_choice) expandChatPanel();
+    renderGraph(data.graph_nodes || [], data.graph_edges || []);
+    if (data.is_completed) setInterviewChoiceUI(false);
+    setStatus(
+      data.is_completed
+        ? ('✅ Граф готов · AI вопросов: ' + (data.free_questions_left ?? 0))
+        : (data.interview_awaiting_choice
+          ? 'Выберите: построить граф или уточнить дальше'
+          : ('Опрос (' + (data.interview_question || interviewQuestion) + '/' + (data.interview_max || interviewMax) + ')')),
+      'ok'
+    );
+  }
+
+  function updateFreeBadge(left, limit, qNum, qMax) {
     freeQuestionsLeft = left;
     freeQuestionsLimit = limit;
+    if (typeof qNum === 'number') interviewQuestion = qNum;
+    if (typeof qMax === 'number') interviewMax = qMax;
     const el = document.getElementById('chat-free-badge');
     if (!el) return;
     if (!chatCompleted) {
-      el.textContent = 'опрос';
-      el.title = 'Сначала ответьте на вопросы — потом до ' + limit + ' вопросов к AI';
+      const n = interviewQuestion || 0;
+      const m = interviewMax || 10;
+      el.textContent = n > 0 ? ('опрос ' + n + '/' + m) : 'опрос';
+      el.title = 'Вопросы перед построением графа (до ' + m + ', можно раньше)';
+      el.style.opacity = '1';
       return;
     }
     el.textContent = 'AI ' + left + '/' + limit;
@@ -757,16 +889,56 @@ html, body {
   }
 
   // ── Chat messages ────────────────────────────────────────────────────
-  function appendMsg(role, text) {
+  function appendMsg(role, text, opts = {}) {
     const log = document.getElementById('chat-log');
+    const wrap = document.createElement('div');
+    wrap.className = 'chat-msg-wrap ' + role;
+
     const el = document.createElement('div');
     el.className = 'chat-msg ' + role;
     if (role === 'ai') {
-      el.innerHTML = '<span class="ai-label">🤖 AI</span>' + escHtml(text);
+      el.innerHTML = '<span class="ai-label">AI</span>' + escHtml(text);
     } else {
       el.textContent = text;
     }
-    log.appendChild(el);
+    wrap.appendChild(el);
+
+    const examples = Array.isArray(opts.examples) ? opts.examples.filter(Boolean) : [];
+    if (role === 'ai' && examples.length > 0) {
+      const tools = document.createElement('div');
+      tools.className = 'chat-examples';
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'examples-btn';
+      btn.textContent = 'Примеры';
+      const panel = document.createElement('div');
+      panel.className = 'examples-panel hidden';
+      panel.setAttribute('aria-hidden', 'true');
+      btn.addEventListener('click', () => {
+        const hidden = panel.classList.toggle('hidden');
+        panel.setAttribute('aria-hidden', hidden ? 'true' : 'false');
+        btn.classList.toggle('open', !hidden);
+      });
+      for (const ex of examples) {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'example-chip';
+        chip.textContent = ex;
+        chip.addEventListener('click', () => {
+          const inp = document.getElementById('chatInput');
+          inp.value = ex;
+          autoGrow(inp);
+          inp.focus();
+          expandChatPanel();
+        });
+        panel.appendChild(chip);
+      }
+      tools.appendChild(btn);
+      tools.appendChild(panel);
+      wrap.appendChild(tools);
+    }
+
+    log.appendChild(wrap);
     log.scrollTop = log.scrollHeight;
   }
 
@@ -1375,6 +1547,30 @@ html, body {
     if (!panel.classList.contains('collapsed')) setChatCollapsed(true);
   }
 
+  async function sendInterviewChoice(kind) {
+    if (!chatSessionId) return;
+    const msg = kind === 'build' ? 'Построить граф' : 'Уточнить дальше';
+    expandChatPanel();
+    appendMsg('user', msg);
+    setInterviewChoiceUI(false);
+    setStatus('AI думает…', 'busy');
+    document.getElementById('loading-overlay').classList.add('visible');
+    document.getElementById('loading-text').textContent = kind === 'build' ? 'Строю граф…' : 'Готовлю вопрос…';
+    try {
+      const data = await apiPost(CHAT_MSG_URL, { session_id: chatSessionId, message: msg });
+      appendMsg('ai', data.assistant_message, {
+        examples: data.is_completed ? [] : (data.answer_examples || []),
+      });
+      applyChatResponse(data);
+    } catch (err) {
+      setStatus('Ошибка: ' + err.message, 'err');
+      appendMsg('ai', '❌ ' + err.message);
+      setInterviewChoiceUI(true);
+    } finally {
+      document.getElementById('loading-overlay').classList.remove('visible');
+    }
+  }
+
   async function sendMsgText(msg) {
     if (!msg || !chatSessionId) return;
     setStatus('AI думает…', 'busy');
@@ -1382,20 +1578,10 @@ html, body {
     document.getElementById('loading-text').textContent = 'Готовлю ответ…';
     try {
       const data = await apiPost(CHAT_MSG_URL, { session_id: chatSessionId, message: msg });
-      chatCompleted = !!data.is_completed;
-      updateFreeBadge(
-        data.free_questions_left ?? freeQuestionsLeft,
-        data.free_questions_limit ?? freeQuestionsLimit
-      );
-      if (!data.is_completed) expandChatPanel();
-      appendMsg('ai', data.assistant_message);
-      renderGraph(data.graph_nodes || [], data.graph_edges || []);
-      setStatus(
-        data.is_completed
-          ? ('✅ Граф готов · AI вопросов: ' + (data.free_questions_left ?? 0))
-          : 'Жду ответа на вопросы',
-        'ok'
-      );
+      appendMsg('ai', data.assistant_message, {
+        examples: data.is_completed ? [] : (data.answer_examples || []),
+      });
+      applyChatResponse(data);
     } catch (err) {
       setStatus('Ошибка: ' + err.message, 'err');
       appendMsg('ai', '❌ ' + err.message);
@@ -1434,27 +1620,37 @@ html, body {
     return raw || `HTTP ${status}`;
   }
 
-  async function apiPost(url, body) {
-    let r;
-    try {
-      r = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-    } catch (_) {
-      throw new Error(
-        'Нет связи с API (Failed to fetch). Запусти backend + zrok и обнови BASE_URL.'
-      );
+  async function apiPost(url, body, retries = 1) {
+    let lastErr;
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const r = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const text = await r.text();
+        let data = {};
+        try { data = text ? JSON.parse(text) : {}; } catch (_) { data = { detail: text }; }
+        if (!r.ok) {
+          const detail = typeof data.detail === 'string' ? data.detail : formatApiError(r.status, text);
+          throw new Error(detail);
+        }
+        return data;
+      } catch (err) {
+        lastErr = err;
+        const msg = String(err.message || err);
+        const isNetwork = /failed to fetch|networkerror|load failed/i.test(msg);
+        if (!isNetwork || attempt >= retries) break;
+        await new Promise((r) => setTimeout(r, 800));
+      }
     }
-    const text = await r.text();
-    let data = {};
-    try { data = text ? JSON.parse(text) : {}; } catch (_) { data = { detail: text }; }
-    if (!r.ok) {
-      const detail = typeof data.detail === 'string' ? data.detail : formatApiError(r.status, text);
-      throw new Error(detail);
-    }
-    return data;
+    const hint = 'Проверь: ./scripts/01-api.sh и ./scripts/02-zrok.sh, затем BASE_URL = ' + BASE_URL;
+    throw new Error(
+      /failed to fetch|networkerror|load failed/i.test(String(lastErr.message || lastErr))
+        ? ('Нет связи с API. ' + hint)
+        : (lastErr.message || String(lastErr))
+    );
   }
 
   async function pingApi() {
@@ -1464,10 +1660,10 @@ html, body {
         setStatus('API доступен', 'ok');
         return true;
       }
-      setStatus(formatApiError(r.status, ''), 'err');
+      setStatus(formatApiError(r.status, '') + ' · ' + BASE_URL, 'err');
       return false;
     } catch (_) {
-      setStatus('API недоступен — запусти backend + zrok', 'err');
+      setStatus('API недоступен — запусти backend + zrok · ' + BASE_URL, 'err');
       return false;
     }
   }
@@ -1481,20 +1677,17 @@ html, body {
     document.getElementById('loading-text').textContent = 'Запускаю анализ…';
     setStatus('Запрос к AI…', 'busy');
     document.getElementById('chat-log').innerHTML = '';
+    setInterviewChoiceUI(false);
     appendMsg('user', query);
     closeDetails();
 
     try {
       const data = await apiPost(CHAT_START_URL, { query });
       chatSessionId = data.session_id;
-      chatCompleted = !!data.is_completed;
-      updateFreeBadge(
-        data.free_questions_left ?? 5,
-        data.free_questions_limit ?? 5
-      );
-      appendMsg('ai', data.assistant_message);
-      renderGraph(data.graph_nodes || [], data.graph_edges || []);
-      setStatus(data.text_report || 'Ответьте на вопросы — граф появится в конце', 'ok');
+      appendMsg('ai', data.assistant_message, {
+        examples: data.is_completed ? [] : (data.answer_examples || []),
+      });
+      applyChatResponse(data);
     } catch (err) {
       setStatus('Ошибка: ' + err.message, 'err');
       appendMsg('ai', '❌ ' + err.message);
@@ -1509,6 +1702,10 @@ html, body {
     const msg = inp.value.trim();
     if (!msg) return;
     if (!chatSessionId) { appendMsg('ai', 'Сначала нажми Старт и опиши свою идею.'); return; }
+    if (interviewAwaitingChoice) {
+      appendMsg('ai', 'Сначала выбери: «Построить граф» или «Уточнить дальше».');
+      return;
+    }
 
     expandChatPanel();
     appendMsg('user', msg);
@@ -1524,6 +1721,8 @@ html, body {
     initVis();
 
     document.getElementById('buildBtn').addEventListener('click', startChat);
+    document.getElementById('buildGraphChoiceBtn').addEventListener('click', () => sendInterviewChoice('build'));
+    document.getElementById('continueInterviewBtn').addEventListener('click', () => sendInterviewChoice('continue'));
     document.getElementById('sendChatBtn').addEventListener('click', sendMsg);
     document.getElementById('closeBtn').addEventListener('click', closeDetails);
     document.getElementById('askNodeBtn').addEventListener('click', () => { askAboutNode(); });
